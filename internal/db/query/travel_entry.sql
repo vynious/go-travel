@@ -1,31 +1,48 @@
-
--- name: GetTravelEntriesByOwnerId :many
-select country, street_address, city, state, postal_code, media, description, visit_date
-from travel_entry
-where owner_id = $1;
-
--- name: GetTravelEntriesById :one
-select country, street_address, city, state, postal_code, media, description, visit_date
-from travel_entry
-where id = $1;
-
--- name: GetTravelEntriesByCountry :many
-select country, street_address, city, state, postal_code, media, description, visit_date
-from travel_entry
-where country = $1;
-
 -- name: CreateTravelEntry :one
-insert into travel_entry (
-    owner_id,
-    country,
-    street_address,
-    city,
-    state,
-    postal_code,
-    media,
-    description,
-    visibility,
-) values (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9
-) returning *;
+INSERT INTO travel_entry (
+    user_id,
+    trip_id,
+    location,
+    description
+) VALUES (
+             $1, $2, $3, $4
+         ) RETURNING *;
 
+-- name: GetTravelEntryById :one
+SELECT *
+FROM travel_entry
+WHERE id = $1
+    LIMIT 1;
+
+-- name: GetAllTravelEntry :many
+SELECT *
+FROM travel_entry;
+
+-- name: GetAllTravelEntryByTripId :many
+SELECT *
+FROM travel_entry
+WHERE trip_id = $1;
+
+-- name: GetAllTravelEntryByUserIdAndTripId :many
+SELECT *
+FROM travel_entry
+WHERE trip_id = $1
+  AND user_id = $2;
+
+-- name: UpdateTravelEntryLocation :one
+UPDATE travel_entry
+SET location = $2
+WHERE id = $1
+    RETURNING *;
+
+-- name: UpdateTravelEntryDescription :one
+UPDATE travel_entry
+SET description = $2
+WHERE id = $1
+    RETURNING *;
+
+
+-- name: DeleteTravelEntry :one
+DELETE FROM travel_entry
+WHERE id = $1
+    RETURNING *;

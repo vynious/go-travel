@@ -1,26 +1,50 @@
 -- name: GetUser :one
-select * from "user"
-where id = $1
-limit 1;
+SELECT * FROM users
+WHERE id = $1
+    LIMIT 1;
 
 -- name: ListUsers :many
-select * from "user"
-order by name;
+SELECT * FROM users
+ORDER BY name;
 
 -- name: CreateUser :one
-insert into "user" (
+INSERT INTO users (
     name,
     username,
     email
-) values (
-    $1, $2, $3
-) returning *;
+) VALUES (
+             $1, $2, $3
+         ) RETURNING *;
 
 -- name: GetUserByEmail :one
-select email from "user"
-where username = $1;
+SELECT email FROM users
+WHERE username = $1;
 
 -- name: UpdateUserProfilePicture :one
-update user
-set profile_picture = $2
-where id = $1;
+UPDATE users
+SET profile_picture = $2
+WHERE id = $1
+    RETURNING *;
+
+-- name: UpdateUserEmail :one
+UPDATE users
+SET email = $2
+WHERE id = $1
+    RETURNING *;
+
+-- name: UpdateUserUsername :one
+UPDATE users
+SET username = $2
+WHERE id = $1
+    RETURNING *;
+
+-- name: UpdateUserName :one
+UPDATE users
+SET name = $2
+WHERE id = $1
+    RETURNING *;
+
+-- name: DeleteUser :one
+DELETE FROM users
+WHERE id = $1
+    RETURNING *;

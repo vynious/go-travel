@@ -1,46 +1,73 @@
 -- +goose Up
-create table user (
-    id bigserial primary key,
-    name varchar(100) not null,
-    username varchar(50) not null unique,
-    email varchar(100) not null unique,
-    profile_picture varchar(50),
-    created_at timestamptz not null default now()
+CREATE TABLE users (
+                       id BIGSERIAL PRIMARY KEY,
+                       name VARCHAR(100) NOT NULL,
+                       username VARCHAR(50) NOT NULL UNIQUE,
+                       email VARCHAR(100) NOT NULL UNIQUE,
+                       profile_picture VARCHAR(255),
+                       creation_date TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-create table follower (
-    follower_id bigserial,
-    following_id bigserial,
-    primary key (follower_id, following_id),
-    foreign key (following_id) references user(id) on delete cascade,
-    foreign key (follower_id) references user(id) on delete cascade,
-    followed_on timestamptz not null default now()
+CREATE TABLE trip (
+                      id BIGSERIAL PRIMARY KEY,
+                      title VARCHAR(255),
+                      country VARCHAR(50),
+                      start_date DATE,
+                      end_date DATE
 );
 
-create table travel_entry (
-    id bigserial primary key,
-    owner_id bigserial,
-    country varchar(50),
-    street_address varchar(50),
-    city varchar(50),
-    state varchar(50),
-    postal_code varchar(50),
-    media text[],
-    description text,
-    visibility boolean,
-    visit_date date not null default now(),
-    foreign key (owner_id) references user(id) on delete cascade
+CREATE TABLE connections (
+                             party_a BIGSERIAL,
+                             party_b BIGSERIAL,
+                             PRIMARY KEY (party_a, party_b),
+                             FOREIGN KEY (party_a) REFERENCES users(id) ON DELETE CASCADE,
+                             FOREIGN KEY (party_b) REFERENCES users(id) ON DELETE CASCADE,
+                             connected_date TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-create table comment (
-    entry_id bigserial,
-    user_id bigserial,
-    content text,
-    commented_on date not null default now(),
-    foreign key (entry_id) references travel_entry(id) on delete cascade,
-    foreign key (user_id) references user(id) on delete cascade,
-    primary key (user_id, entry_id, commented_on)
+CREATE TABLE user_trip (
+                           trip_id BIGSERIAL,
+                           user_id BIGSERIAL,
+                           PRIMARY KEY (trip_id, user_id),
+                           FOREIGN KEY (trip_id) REFERENCES trip(id) ON DELETE CASCADE,
+                           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE travel_entry (
+                       id BIGSERIAL PRIMARY KEY,
+                       user_id BIGSERIAL,
+                       trip_id BIGSERIAL,
+                       location VARCHAR(255),
+                       description TEXT,
+                       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                       FOREIGN KEY (trip_id) REFERENCES trip(id) ON DELETE CASCADE
+);
+
+CREATE TABLE media (
+                       id BIGSERIAL PRIMARY KEY,
+                       entry_id BIGSERIAL,
+                       url VARCHAR(255),
+                       FOREIGN KEY (entry_id) REFERENCES travel_entry(id) ON DELETE CASCADE
+);
+
+CREATE TABLE comment (
+                         id BIGSERIAL PRIMARY KEY,
+                         entry_id BIGSERIAL,
+                         user_id BIGSERIAL,
+                         content TEXT,
+                         commented_on DATE NOT NULL DEFAULT NOW(),
+                         FOREIGN KEY (entry_id) REFERENCES travel_entry(id) ON DELETE CASCADE,
+                         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 
 -- +goose Down
+DROP TABLE IF EXISTS comment;
+DROP TABLE IF EXISTS media;
+DROP TABLE IF EXISTS travel_entry;
+DROP TABLE IF EXISTS user_trip;
+DROP TABLE IF EXISTS connections;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS trip;
+
+
