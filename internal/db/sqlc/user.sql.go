@@ -81,15 +81,41 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT email FROM users
+SELECT id, name, username, email, profile_picture, creation_date FROM users
+WHERE email = $1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.queryRow(ctx, q.getUserByEmailStmt, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Username,
+		&i.Email,
+		&i.ProfilePicture,
+		&i.CreationDate,
+	)
+	return i, err
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, name, username, email, profile_picture, creation_date FROM users
 WHERE username = $1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, username string) (string, error) {
-	row := q.queryRow(ctx, q.getUserByEmailStmt, getUserByEmail, username)
-	var email string
-	err := row.Scan(&email)
-	return email, err
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.queryRow(ctx, q.getUserByUsernameStmt, getUserByUsername, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Username,
+		&i.Email,
+		&i.ProfilePicture,
+		&i.CreationDate,
+	)
+	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many

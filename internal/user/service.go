@@ -32,12 +32,37 @@ func (s *Service) CreateNewUser(ctx context.Context, name string, username strin
 	return user, nil
 }
 
+func (s *Service) GetUserById(ctx context.Context, id int64) (db.User, error) {
+	user, err := s.repository.queries.GetUser(ctx, id)
+	if err != nil {
+		return db.User{}, fmt.Errorf("unable to get user: %w", err)
+	}
+	return user, nil
+}
+
+func (s *Service) GetUserByEmail(ctx context.Context, email string) (db.User, error) {
+	user, err := s.repository.queries.GetUserByEmail(ctx, email)
+	if err != nil {
+		return db.User{}, fmt.Errorf("unable to get user: %w", err)
+	}
+	return user, nil
+}
+
+func (s *Service) GetUserByUsername(ctx context.Context, username string) (db.User, error) {
+	user, err := s.repository.queries.GetUserByUsername(ctx, username)
+	if err != nil {
+		return db.User{}, fmt.Errorf("unable to get user: %w", err)
+	}
+	return user, nil
+}
+
 // VerifyUserExistence takes in
-func (s *Service) VerifyUserExistence(ctx context.Context, username string, password string) (bool, error) {
+func (s *Service) VerifyUserExistence(ctx context.Context, email string, password string) (bool, error) {
 	// call the firebase auth service
 	// if true
 
-	username, err := s.repository.queries.GetUserByEmail(ctx, username)
+	user, err := s.repository.queries.GetUserByEmail(ctx, email)
+
 	if err != nil {
 		return false, err
 	}

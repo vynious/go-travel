@@ -1,20 +1,19 @@
 package user
 
 import (
-	"github.com/google/uuid"
-	"time"
+	db "github.com/vynious/go-travel/internal/db/sqlc"
 )
 
-type User struct {
-	id        uuid.UUID
-	name      string
-	username  string
-	email     string
-	createdAt time.Time
+type RegisterUserReq struct {
+	User     db.User
+	Password string
 }
 
 type RegisterUserRes struct {
+	User db.User
 }
 
 type LoginUserRes struct {
+	Email    string
+	Password string
 }

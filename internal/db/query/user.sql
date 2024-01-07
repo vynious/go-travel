@@ -17,7 +17,11 @@ INSERT INTO users (
          ) RETURNING *;
 
 -- name: GetUserByEmail :one
-SELECT email FROM users
+SELECT * FROM users
+WHERE email = $1;
+
+-- name: GetUserByUsername :one
+SELECT * FROM users
 WHERE username = $1;
 
 -- name: UpdateUserProfilePicture :one

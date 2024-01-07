@@ -96,6 +96,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getUserByEmailStmt, err = db.PrepareContext(ctx, getUserByEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUserByEmail: %w", err)
 	}
+	if q.getUserByUsernameStmt, err = db.PrepareContext(ctx, getUserByUsername); err != nil {
+		return nil, fmt.Errorf("error preparing query GetUserByUsername: %w", err)
+	}
 	if q.listTripsStmt, err = db.PrepareContext(ctx, listTrips); err != nil {
 		return nil, fmt.Errorf("error preparing query ListTrips: %w", err)
 	}
@@ -257,6 +260,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getUserByEmailStmt: %w", cerr)
 		}
 	}
+	if q.getUserByUsernameStmt != nil {
+		if cerr := q.getUserByUsernameStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getUserByUsernameStmt: %w", cerr)
+		}
+	}
 	if q.listTripsStmt != nil {
 		if cerr := q.listTripsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listTripsStmt: %w", cerr)
@@ -380,6 +388,7 @@ type Queries struct {
 	getTripStmt                            *sql.Stmt
 	getUserStmt                            *sql.Stmt
 	getUserByEmailStmt                     *sql.Stmt
+	getUserByUsernameStmt                  *sql.Stmt
 	listTripsStmt                          *sql.Stmt
 	listUsersStmt                          *sql.Stmt
 	updateMediaByIdStmt                    *sql.Stmt
@@ -422,6 +431,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getTripStmt:                            q.getTripStmt,
 		getUserStmt:                            q.getUserStmt,
 		getUserByEmailStmt:                     q.getUserByEmailStmt,
+		getUserByUsernameStmt:                  q.getUserByUsernameStmt,
 		listTripsStmt:                          q.listTripsStmt,
 		listUsersStmt:                          q.listUsersStmt,
 		updateMediaByIdStmt:                    q.updateMediaByIdStmt,
