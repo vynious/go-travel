@@ -4,16 +4,22 @@ import (
 	db "github.com/vynious/go-travel/internal/db/sqlc"
 )
 
-type RegisterUserReq struct {
+type RegisterUserRequest struct {
 	User     db.User
 	Password string
 }
 
-type RegisterUserRes struct {
+type UserDetailResponse struct {
 	User db.User
 }
 
-type LoginUserRes struct {
+type LoginUserRequest struct {
 	Email    string
 	Password string
+}
+
+type UpdateUserDetailRequest struct {
+	Name     *string
+	Email    *string
+	Username *string
 }
