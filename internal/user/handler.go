@@ -102,50 +102,39 @@ func (h *Handler) ViewUserDetails(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *Handler) SearchUserByUsername(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SearchUser(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	username := query.Get("username")
-
-	user, err := h.repository.queries.GetUserByUsername(r.Context(), username)
-
-	if errors.Is(err, sql.ErrNoRows) {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	} else if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	response := UserDetailResponse{
-		User: user,
-	}
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "failed to write response", http.StatusInternalServerError)
-		return
-	}
-}
-
-func (h *Handler) SearchUserByEmail(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
 	email := query.Get("email")
 
-	user, err := h.repository.queries.GetUserByEmail(r.Context(), email)
+	var user db.User
+	var err error
+
+	switch {
+	case username != "":
+		user, err = h.repository.queries.GetUserByUsername(r.Context(), username)
+	case email != "":
+		user, err = h.repository.queries.GetUserByEmail(r.Context(), email)
+	default:
+		http.Error(w, "No search parameters provided", http.StatusBadRequest)
+		return
+	}
 
 	if errors.Is(err, sql.ErrNoRows) {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	} else if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	response := UserDetailResponse{
 		User: user,
 	}
+
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "failed to write response", http.StatusInternalServerError)
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 		return
 	}
 }
@@ -281,5 +270,4 @@ func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to write response", http.StatusInternalServerError)
 		return
 	}
-
 }
