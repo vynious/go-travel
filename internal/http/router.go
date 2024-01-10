@@ -13,6 +13,9 @@ func InitRouter(uh *user.Handler) {
 		r.Post("/login", uh.LoginUser)
 		r.Get("/view/{id}", uh.ViewUserDetails)
 		r.Get("/search", uh.SearchUser)
+		r.Patch("/update/{id}/profile_picture", uh.ChangeUserProfilePicture)
+		r.Patch("/update/{id}/details", uh.ChangeUserDetails)
+		r.Delete("/delete/{id}", uh.DeleteAccount)
 	})
 
 }
