@@ -20,8 +20,9 @@ func NewUserService(repository *Repository) *Service {
 	}
 }
 
-func (s *Service) CreateNewUser(ctx context.Context, name string, username string, email string) (db.User, error) {
+func (s *Service) CreateNewUser(ctx context.Context, uid string, name string, username string, email string) (db.User, error) {
 	registrationArg := db.CreateUserParams{
+		ID:       uid,
 		Name:     name,
 		Username: username,
 		Email:    email,
@@ -33,7 +34,7 @@ func (s *Service) CreateNewUser(ctx context.Context, name string, username strin
 	return user, nil
 }
 
-func (s *Service) GetUserById(ctx context.Context, id int64) (db.User, error) {
+func (s *Service) GetUserById(ctx context.Context, id string) (db.User, error) {
 	user, err := s.repository.queries.GetUser(ctx, id)
 	if err != nil {
 		return db.User{}, fmt.Errorf("unable to get user: %w", err)
@@ -57,7 +58,7 @@ func (s *Service) GetUserByUsername(ctx context.Context, username string) (db.Us
 	return user, nil
 }
 
-func (s *Service) UpdateUserPictureById(ctx context.Context, id int64, url string) (db.User, error) {
+func (s *Service) UpdateUserPictureById(ctx context.Context, id string, url string) (db.User, error) {
 	profilePicture := sql.NullString{String: url, Valid: url != ""}
 
 	updateParams := db.UpdateUserProfilePictureParams{
@@ -71,7 +72,7 @@ func (s *Service) UpdateUserPictureById(ctx context.Context, id int64, url strin
 	return user, nil
 }
 
-func (s *Service) UpdateUserEmailById(ctx context.Context, id int64, email string) (db.User, error) {
+func (s *Service) UpdateUserEmailById(ctx context.Context, id string, email string) (db.User, error) {
 	updateParams := db.UpdateUserEmailParams{
 		ID:    id,
 		Email: email,
@@ -83,7 +84,7 @@ func (s *Service) UpdateUserEmailById(ctx context.Context, id int64, email strin
 	return user, nil
 }
 
-func (s *Service) UpdateUserUsernameById(ctx context.Context, id int64, username string) (db.User, error) {
+func (s *Service) UpdateUserUsernameById(ctx context.Context, id string, username string) (db.User, error) {
 	updateParams := db.UpdateUserUsernameParams{
 		ID:       id,
 		Username: username,
@@ -95,7 +96,7 @@ func (s *Service) UpdateUserUsernameById(ctx context.Context, id int64, username
 	return user, nil
 }
 
-func (s *Service) UpdateUserNameById(ctx context.Context, id int64, name string) (db.User, error) {
+func (s *Service) UpdateUserNameById(ctx context.Context, id string, name string) (db.User, error) {
 	updateParams := db.UpdateUserNameParams{
 		ID:   id,
 		Name: name,
@@ -107,7 +108,7 @@ func (s *Service) UpdateUserNameById(ctx context.Context, id int64, name string)
 	return user, nil
 }
 
-func (s *Service) DeleteUserById(ctx context.Context, id int64) (db.User, error) {
+func (s *Service) DeleteUserById(ctx context.Context, id string) (db.User, error) {
 	user, err := s.repository.queries.DeleteUser(ctx, id)
 	if err != nil {
 		return db.User{}, fmt.Errorf("unable to delete user: %w", err)

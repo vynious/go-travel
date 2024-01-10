@@ -21,8 +21,8 @@ INSERT INTO connections (
 `
 
 type CreateConnectionParams struct {
-	PartyA int64 `json:"party_a"`
-	PartyB int64 `json:"party_b"`
+	PartyA string `json:"party_a"`
+	PartyB string `json:"party_b"`
 }
 
 func (q *Queries) CreateConnection(ctx context.Context, arg CreateConnectionParams) (Connection, error) {
@@ -40,8 +40,8 @@ RETURNING party_a, party_b, connected_date
 `
 
 type DeleteConnectionByUserIdParams struct {
-	PartyA int64 `json:"party_a"`
-	PartyB int64 `json:"party_b"`
+	PartyA string `json:"party_a"`
+	PartyB string `json:"party_b"`
 }
 
 func (q *Queries) DeleteConnectionByUserId(ctx context.Context, arg DeleteConnectionByUserIdParams) (Connection, error) {
@@ -63,11 +63,11 @@ WHERE party_a = $1 OR party_b = $1
 `
 
 type GetConnectionsByUserIdRow struct {
-	ConnectedUserID sql.NullInt64 `json:"connected_user_id"`
-	ConnectedDate   time.Time     `json:"connected_date"`
+	ConnectedUserID sql.NullString `json:"connected_user_id"`
+	ConnectedDate   time.Time      `json:"connected_date"`
 }
 
-func (q *Queries) GetConnectionsByUserId(ctx context.Context, partyA int64) ([]GetConnectionsByUserIdRow, error) {
+func (q *Queries) GetConnectionsByUserId(ctx context.Context, partyA string) ([]GetConnectionsByUserIdRow, error) {
 	rows, err := q.query(ctx, q.getConnectionsByUserIdStmt, getConnectionsByUserId, partyA)
 	if err != nil {
 		return nil, err

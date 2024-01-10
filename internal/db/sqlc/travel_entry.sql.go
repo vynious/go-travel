@@ -22,7 +22,7 @@ INSERT INTO travel_entry (
 `
 
 type CreateTravelEntryParams struct {
-	UserID      sql.NullInt64  `json:"user_id"`
+	UserID      sql.NullString `json:"user_id"`
 	TripID      sql.NullInt64  `json:"trip_id"`
 	Location    sql.NullString `json:"location"`
 	Description sql.NullString `json:"description"`
@@ -142,8 +142,8 @@ WHERE trip_id = $1
 `
 
 type GetAllTravelEntryByUserIdAndTripIdParams struct {
-	TripID sql.NullInt64 `json:"trip_id"`
-	UserID sql.NullInt64 `json:"user_id"`
+	TripID sql.NullInt64  `json:"trip_id"`
+	UserID sql.NullString `json:"user_id"`
 }
 
 func (q *Queries) GetAllTravelEntryByUserIdAndTripId(ctx context.Context, arg GetAllTravelEntryByUserIdAndTripIdParams) ([]TravelEntry, error) {

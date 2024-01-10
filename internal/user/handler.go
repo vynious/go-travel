@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/go-chi/chi/v5"
+	"github.com/vynious/go-travel/internal/auth"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"net/http"
 	"strconv"
@@ -12,11 +13,13 @@ import (
 
 type Handler struct {
 	*Service
+	firebaseClient *auth.Client
 }
 
-func NewUserHandler(s *Service) *Handler {
+func NewUserHandler(s *Service, fba *auth.Client) *Handler {
 	return &Handler{
 		s,
+		fba,
 	}
 }
 
@@ -32,11 +35,16 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	username := userReq.User.Username
 
 	/*
-		password := userReq.Password
 		todo: send email and password to firebase for registration
 	*/
-
-	user, err := h.CreateNewUser(r.Context(), name, username, email)
+	password := userReq.Password
+	fuser, err := h.firebaseClient.CreateNewUser(r.Context(), name, email, password)
+	if err != nil {
+		http.Error(w, "failed to create user", http.StatusInternalServerError)
+		return
+	}
+	uid := fuser.UID
+	user, err := h.CreateNewUser(r.Context(), uid, name, username, email)
 	if err != nil {
 		// handle error, write error response
 		http.Error(w, "failed to create user", http.StatusInternalServerError)

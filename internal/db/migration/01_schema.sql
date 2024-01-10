@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE users (
-                       id BIGSERIAL PRIMARY KEY,
+                       id VARCHAR(255) PRIMARY KEY,
                        name VARCHAR(100) NOT NULL,
                        username VARCHAR(50) NOT NULL UNIQUE,
                        email VARCHAR(100) NOT NULL UNIQUE,
@@ -17,8 +17,8 @@ CREATE TABLE trip (
 );
 
 CREATE TABLE connections (
-                             party_a BIGSERIAL,
-                             party_b BIGSERIAL,
+                             party_a VARCHAR(255),
+                             party_b VARCHAR(255),
                              PRIMARY KEY (party_a, party_b),
                              FOREIGN KEY (party_a) REFERENCES users(id) ON DELETE CASCADE,
                              FOREIGN KEY (party_b) REFERENCES users(id) ON DELETE CASCADE,
@@ -27,7 +27,7 @@ CREATE TABLE connections (
 
 CREATE TABLE user_trip (
                            trip_id BIGSERIAL,
-                           user_id BIGSERIAL,
+                           user_id VARCHAR(255),
                            PRIMARY KEY (trip_id, user_id),
                            FOREIGN KEY (trip_id) REFERENCES trip(id) ON DELETE CASCADE,
                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -35,7 +35,7 @@ CREATE TABLE user_trip (
 
 CREATE TABLE travel_entry (
                        id BIGSERIAL PRIMARY KEY,
-                       user_id BIGSERIAL,
+                       user_id VARCHAR(255),
                        trip_id BIGSERIAL,
                        location VARCHAR(255),
                        description TEXT,
@@ -53,7 +53,7 @@ CREATE TABLE media (
 CREATE TABLE comment (
                          id BIGSERIAL PRIMARY KEY,
                          entry_id BIGSERIAL,
-                         user_id BIGSERIAL,
+                         user_id VARCHAR(255),
                          content TEXT,
                          commented_on DATE NOT NULL DEFAULT NOW(),
                          FOREIGN KEY (entry_id) REFERENCES travel_entry(id) ON DELETE CASCADE,

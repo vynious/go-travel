@@ -12,14 +12,14 @@ import (
 type Comment struct {
 	ID          int64          `json:"id"`
 	EntryID     sql.NullInt64  `json:"entry_id"`
-	UserID      sql.NullInt64  `json:"user_id"`
+	UserID      sql.NullString `json:"user_id"`
 	Content     sql.NullString `json:"content"`
 	CommentedOn time.Time      `json:"commented_on"`
 }
 
 type Connection struct {
-	PartyA        int64     `json:"party_a"`
-	PartyB        int64     `json:"party_b"`
+	PartyA        string    `json:"party_a"`
+	PartyB        string    `json:"party_b"`
 	ConnectedDate time.Time `json:"connected_date"`
 }
 
@@ -31,7 +31,7 @@ type Medium struct {
 
 type TravelEntry struct {
 	ID          int64          `json:"id"`
-	UserID      sql.NullInt64  `json:"user_id"`
+	UserID      sql.NullString `json:"user_id"`
 	TripID      sql.NullInt64  `json:"trip_id"`
 	Location    sql.NullString `json:"location"`
 	Description sql.NullString `json:"description"`
@@ -46,7 +46,7 @@ type Trip struct {
 }
 
 type User struct {
-	ID             int64          `json:"id"`
+	ID             string         `json:"id"`
 	Name           string         `json:"name"`
 	Username       string         `json:"username"`
 	Email          string         `json:"email"`
@@ -55,6 +55,6 @@ type User struct {
 }
 
 type UserTrip struct {
-	TripID int64 `json:"trip_id"`
-	UserID int64 `json:"user_id"`
+	TripID int64  `json:"trip_id"`
+	UserID string `json:"user_id"`
 }

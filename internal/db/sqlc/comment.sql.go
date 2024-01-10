@@ -22,7 +22,7 @@ INSERT INTO comment (
 
 type CreateCommentParams struct {
 	EntryID sql.NullInt64  `json:"entry_id"`
-	UserID  sql.NullInt64  `json:"user_id"`
+	UserID  sql.NullString `json:"user_id"`
 	Content sql.NullString `json:"content"`
 }
 

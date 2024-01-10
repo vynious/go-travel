@@ -12,22 +12,29 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
+    id,
     name,
     username,
     email
 ) VALUES (
-             $1, $2, $3
+             $1, $2, $3, $4
          ) RETURNING id, name, username, email, profile_picture, creation_date
 `
 
 type CreateUserParams struct {
+	ID       string `json:"id"`
 	Name     string `json:"name"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.queryRow(ctx, q.createUserStmt, createUser, arg.Name, arg.Username, arg.Email)
+	row := q.queryRow(ctx, q.createUserStmt, createUser,
+		arg.ID,
+		arg.Name,
+		arg.Username,
+		arg.Email,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -46,7 +53,7 @@ WHERE id = $1
     RETURNING id, name, username, email, profile_picture, creation_date
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id int64) (User, error) {
+func (q *Queries) DeleteUser(ctx context.Context, id string) (User, error) {
 	row := q.queryRow(ctx, q.deleteUserStmt, deleteUser, id)
 	var i User
 	err := row.Scan(
@@ -66,7 +73,7 @@ WHERE id = $1
     LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
+func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
 	row := q.queryRow(ctx, q.getUserStmt, getUser, id)
 	var i User
 	err := row.Scan(
@@ -161,7 +168,7 @@ WHERE id = $1
 `
 
 type UpdateUserEmailParams struct {
-	ID    int64  `json:"id"`
+	ID    string `json:"id"`
 	Email string `json:"email"`
 }
 
@@ -187,7 +194,7 @@ WHERE id = $1
 `
 
 type UpdateUserNameParams struct {
-	ID   int64  `json:"id"`
+	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -213,7 +220,7 @@ WHERE id = $1
 `
 
 type UpdateUserProfilePictureParams struct {
-	ID             int64          `json:"id"`
+	ID             string         `json:"id"`
 	ProfilePicture sql.NullString `json:"profile_picture"`
 }
 
@@ -239,7 +246,7 @@ WHERE id = $1
 `
 
 type UpdateUserUsernameParams struct {
-	ID       int64  `json:"id"`
+	ID       string `json:"id"`
 	Username string `json:"username"`
 }
 

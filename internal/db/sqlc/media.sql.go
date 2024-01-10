@@ -112,8 +112,8 @@ WHERE user_trip.trip_id = $1 AND user_trip.user_id = $2
 `
 
 type GetAllMediaByTripIdAndUserIdParams struct {
-	TripID int64 `json:"trip_id"`
-	UserID int64 `json:"user_id"`
+	TripID int64  `json:"trip_id"`
+	UserID string `json:"user_id"`
 }
 
 func (q *Queries) GetAllMediaByTripIdAndUserId(ctx context.Context, arg GetAllMediaByTripIdAndUserIdParams) ([]Medium, error) {
@@ -147,7 +147,7 @@ FROM media
 WHERE user_trip.user_id = $1
 `
 
-func (q *Queries) GetAllMediaByUserId(ctx context.Context, userID int64) ([]Medium, error) {
+func (q *Queries) GetAllMediaByUserId(ctx context.Context, userID string) ([]Medium, error) {
 	rows, err := q.query(ctx, q.getAllMediaByUserIdStmt, getAllMediaByUserId, userID)
 	if err != nil {
 		return nil, err
