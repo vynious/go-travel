@@ -42,17 +42,49 @@ func (client *Client) CreateNewUser(ctx context.Context, name string, email stri
 	return u, nil
 }
 
-func (client *Client) GetUser(ctx context.Context, email string, password string) (bool, error) {
-
-	return true, nil
+func (client *Client) GetUser(ctx context.Context, email string, password string) (*auth.UserRecord, error) {
+	return nil, nil
 }
 
-func (client *Client) UpdateUserEmail(ctx context.Context, email string) (*auth.UserRecord, error) {}
-
-func (client *Client) UpdateUserPassword(ctx context.Context, password string) (*auth.UserRecord, error) {
+func (client *Client) UpdateUserEmail(ctx context.Context, uid string, email string) (*auth.UserRecord, error) {
+	params := (&auth.UserToUpdate{}).
+		Email(email)
+	u, err := client.fbClient.UpdateUser(ctx, uid, params)
+	if err != nil {
+		return nil, fmt.Errorf("error updating user: %v\n", err)
+	}
+	log.Printf("Successfully updated user: %v\n", u)
+	return u, nil
 }
 
-func (client *Client) UpdateUserName(ctx context.Context, name string) (*auth.UserRecord, error) {}
+func (client *Client) UpdateUserPassword(ctx context.Context, uid string, password string) (*auth.UserRecord, error) {
+	params := (&auth.UserToUpdate{}).
+		Password(password)
+	u, err := client.fbClient.UpdateUser(ctx, uid, params)
+	if err != nil {
+		return nil, fmt.Errorf("error updating user: %v\n", err)
+	}
+	log.Printf("Successfully updated user: %v\n", u)
+	return u, nil
+}
+
+func (client *Client) UpdateUserName(ctx context.Context, uid string, name string) (*auth.UserRecord, error) {
+	params := (&auth.UserToUpdate{}).
+		DisplayName(name)
+	u, err := client.fbClient.UpdateUser(ctx, uid, params)
+	if err != nil {
+		return nil, fmt.Errorf("error updating user: %v\n", err)
+	}
+	log.Printf("Successfully updated user: %v\n", u)
+	return u, nil
+}
+
+func (client *Client) DeleteUser(ctx context.Context, uid string) error {
+	if err := client.fbClient.DeleteUser(ctx, uid); err != nil {
+		return fmt.Errorf("error deleting user: %w", err)
+	}
+	return nil
+}
 
 func (client *Client) CreateCustomToken(ctx context.Context, uuid string) (string, error) {
 	token, err := client.fbClient.CustomToken(ctx, uuid)
