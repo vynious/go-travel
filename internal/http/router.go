@@ -5,17 +5,17 @@ import (
 	"github.com/vynious/go-travel/internal/user"
 )
 
-func InitRouter(uh *user.Handler) {
+func InitRouter(userHandler *user.Handler) {
 	r := chi.NewRouter()
 
 	r.Route("/user", func(r chi.Router) {
-		r.Post("/create", uh.RegisterUser)
-		r.Post("/login", uh.LoginUser)
-		r.Get("/view/{id}", uh.ViewUserDetails)
-		r.Get("/search", uh.SearchUser)
-		r.Patch("/update/{id}/profile_picture", uh.ChangeUserProfilePicture)
-		r.Patch("/update/{id}/details", uh.ChangeUserDetails)
-		r.Delete("/delete/{id}", uh.DeleteAccount)
+		r.Post("/create", userHandler.RegisterUser)
+		r.Post("/login", userHandler.LoginUser)
+		r.Get("/view/{id}", userHandler.ViewUserDetails)
+		r.Get("/search", userHandler.SearchUser)
+		r.Patch("/update/{id}/profile_picture", userHandler.ChangeUserProfilePicture)
+		r.Patch("/update/{id}/details", userHandler.ChangeUserDetails)
+		r.Delete("/delete/{id}", userHandler.DeleteAccount)
 	})
 
 }
