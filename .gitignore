@@ -1,2 +1,2 @@
 .env
-internal/domains/auth/firebase_key.json
+firebase.json

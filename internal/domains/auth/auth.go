@@ -21,7 +21,7 @@ func NewAuth() {
 }
 
 func NewFirebaseClient() (*Client, error) {
-	opt := option.WithCredentialsFile("../internal/domains/auth/firebase_key.json")
+	opt := option.WithCredentialsFile("../firebase.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		return nil, fmt.Errorf("error initializing app: %w", err)
