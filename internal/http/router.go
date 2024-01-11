@@ -1,13 +1,21 @@
 package http
 
 import (
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
+	"net/http"
 )
 
-func InitRouter(userHandler *user.Handler, tripHandler *trip.Handler) {
+func InitRouter(userHandler *user.UserHandler, tripHandler *trip.TripHandler) chi.Router {
 	r := chi.NewRouter()
+
+	r.Get("/", func(writer http.ResponseWriter, request *http.Request) {
+		fmt.Fprintln(writer, "API working!")
+		writer.WriteHeader(http.StatusOK)
+
+	})
 
 	r.Route("/user", func(r chi.Router) {
 		r.Post("/create", userHandler.RegisterUser)
@@ -28,4 +36,5 @@ func InitRouter(userHandler *user.Handler, tripHandler *trip.Handler) {
 		r.Delete("/delete/{id}", tripHandler.DeleteTrip)
 	})
 
+	return r
 }

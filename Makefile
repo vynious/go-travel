@@ -6,3 +6,6 @@ make schema-down:
 
 make query:
 	sqlc generate
+
+make run:
+	go run main.go

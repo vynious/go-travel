@@ -6,6 +6,7 @@ import (
 	"firebase.google.com/go/auth"
 	"fmt"
 	"github.com/joho/godotenv"
+	"google.golang.org/api/option"
 	"log"
 )
 
@@ -19,12 +20,20 @@ func NewAuth() {
 	}
 }
 
-func NewFirebaseApp() *firebase.App {
-	app, err := firebase.NewApp(context.Background(), nil)
+func NewFirebaseClient() (*Client, error) {
+	opt := option.WithCredentialsFile("../internal/domains/auth/firebase_key.json")
+	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		log.Fatalf("error initializing app: %v\n", err)
+		return nil, fmt.Errorf("error initializing app: %w", err)
 	}
-	return app
+
+	fireAuth, err := app.Auth(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("error connecting to firebase: %w", err)
+	}
+	return &Client{
+		fbClient: fireAuth,
+	}, nil
 }
 
 func (client *Client) CreateNewUser(ctx context.Context, name string, email string, password string) (*auth.UserRecord, error) {

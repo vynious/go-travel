@@ -1,7 +1,8 @@
 package user
 
-// todo: dependency injection for user-service
-//func initUserService() (*Handler, error) {
+//
+//// todo: dependency injection for user-service
+//func initUserService() (*UserHandler, error) {
 //
 //	dbConn, err := db.NewConnection( /* database config */ )
 //	if err != nil {
