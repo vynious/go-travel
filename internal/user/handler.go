@@ -8,7 +8,6 @@ import (
 	"github.com/vynious/go-travel/internal/auth"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"net/http"
-	"strconv"
 )
 
 type Handler struct {
@@ -35,7 +34,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	username := userReq.User.Username
 
 	/*
-		todo: send email and password to firebase for registration
+		send email and password to firebase for registration
 	*/
 	password := userReq.Password
 	fuser, err := h.firebaseClient.CreateNewUser(r.Context(), name, email, password)
@@ -44,6 +43,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uid := fuser.UID
+
 	user, err := h.CreateNewUser(r.Context(), uid, name, username, email)
 	if err != nil {
 		// handle error, write error response
@@ -91,13 +91,13 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ViewUserDetails(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(strId, 10, 64)
+	id := chi.URLParam(r, "id")
+
+	user, err := h.GetUserById(r.Context(), id)
 	if err != nil {
-		http.Error(w, "invalid user ID", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	user, err := h.GetUserById(r.Context(), id)
 
 	w.WriteHeader(http.StatusOK)
 	response := UserDetailResponse{
@@ -152,12 +152,7 @@ func (h *Handler) ChangeUserProfilePicture(w http.ResponseWriter, r *http.Reques
 	 todo: communicate with s3 to get url, then update the profile_picture field with the new url
 	*/
 	var url string // replace
-	strId := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(strId, 10, 64)
-	if err != nil {
-		http.Error(w, "invalid user ID", http.StatusBadRequest)
-		return
-	}
+	id := chi.URLParam(r, "id")
 
 	user, err := h.UpdateUserPictureById(r.Context(), id, url)
 	if err != nil {
@@ -176,12 +171,7 @@ func (h *Handler) ChangeUserProfilePicture(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *Handler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(strId, 10, 64)
-	if err != nil {
-		http.Error(w, "invalid user ID", http.StatusBadRequest)
-		return
-	}
+	id := chi.URLParam(r, "id")
 
 	var userReq UpdateUserDetailRequest
 	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
@@ -257,12 +247,7 @@ func (h *Handler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(strId, 10, 64)
-	if err != nil {
-		http.Error(w, "invalid user ID", http.StatusBadRequest)
-		return
-	}
+	id := chi.URLParam(r, "id")
 
 	user, err := h.DeleteUserById(r.Context(), id)
 	if err != nil {
