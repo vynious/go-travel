@@ -8,19 +8,19 @@ import (
 	"time"
 )
 
-type Service struct {
+type TripService struct {
 	repository *repo.Repository
 	timeout    time.Duration
 }
 
-func NewTripService(repository *repo.Repository) *Service {
-	return &Service{
+func NewTripService(repository *repo.Repository) *TripService {
+	return &TripService{
 		repository: repository,
 		timeout:    time.Duration(2) * time.Second,
 	}
 }
 
-func (s *Service) CreateNewTrip(ctx context.Context, title string, country string, startDate time.Time, endDate time.Time) (db.Trip, error) {
+func (s *TripService) CreateNewTrip(ctx context.Context, title string, country string, startDate time.Time, endDate time.Time) (db.Trip, error) {
 
 	params := db.CreateTripParams{
 		Title:     title,
@@ -37,7 +37,7 @@ func (s *Service) CreateNewTrip(ctx context.Context, title string, country strin
 	return trip, nil
 }
 
-func (s *Service) GetAllTrips(ctx context.Context) ([]db.Trip, error) {
+func (s *TripService) GetAllTrips(ctx context.Context) ([]db.Trip, error) {
 	trips, err := s.repository.Queries.ListTrips(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get trips: %w", err)
@@ -45,7 +45,7 @@ func (s *Service) GetAllTrips(ctx context.Context) ([]db.Trip, error) {
 	return trips, nil
 }
 
-func (s *Service) GetTripById(ctx context.Context, id int64) (db.Trip, error) {
+func (s *TripService) GetTripById(ctx context.Context, id int64) (db.Trip, error) {
 	trip, err := s.repository.Queries.GetTrip(ctx, id)
 	if err != nil {
 		return db.Trip{}, fmt.Errorf("unable to get trip: %w", err)
@@ -53,7 +53,7 @@ func (s *Service) GetTripById(ctx context.Context, id int64) (db.Trip, error) {
 	return trip, nil
 }
 
-func (s *Service) UpdateTripTitle(ctx context.Context, id int64, title string) (db.Trip, error) {
+func (s *TripService) UpdateTripTitle(ctx context.Context, id int64, title string) (db.Trip, error) {
 	updateParams := db.UpdateTripTitleParams{
 		ID:    id,
 		Title: title,
@@ -65,7 +65,7 @@ func (s *Service) UpdateTripTitle(ctx context.Context, id int64, title string) (
 	return trip, nil
 }
 
-func (s *Service) UpdateTripCountry(ctx context.Context, id int64, country string) (db.Trip, error) {
+func (s *TripService) UpdateTripCountry(ctx context.Context, id int64, country string) (db.Trip, error) {
 	updateParams := db.UpdateTripCountryParams{
 		ID:      id,
 		Country: country,
@@ -77,7 +77,7 @@ func (s *Service) UpdateTripCountry(ctx context.Context, id int64, country strin
 	return trip, nil
 }
 
-func (s *Service) UpdateTripStartDate(ctx context.Context, id int64, startDate time.Time) (db.Trip, error) {
+func (s *TripService) UpdateTripStartDate(ctx context.Context, id int64, startDate time.Time) (db.Trip, error) {
 	updateParams := db.UpdateTripStartDateParams{
 		ID:        id,
 		StartDate: startDate,
@@ -89,7 +89,7 @@ func (s *Service) UpdateTripStartDate(ctx context.Context, id int64, startDate t
 	return trip, nil
 }
 
-func (s *Service) UpdateTripEndDate(ctx context.Context, id int64, endDate time.Time) (db.Trip, error) {
+func (s *TripService) UpdateTripEndDate(ctx context.Context, id int64, endDate time.Time) (db.Trip, error) {
 	updateParams := db.UpdateTripEndDateParams{
 		ID:      id,
 		EndDate: endDate,
@@ -101,7 +101,7 @@ func (s *Service) UpdateTripEndDate(ctx context.Context, id int64, endDate time.
 	return trip, nil
 }
 
-func (s *Service) DeleteTripById(ctx context.Context, id int64) (db.Trip, error) {
+func (s *TripService) DeleteTripById(ctx context.Context, id int64) (db.Trip, error) {
 	user, err := s.repository.Queries.DeleteTrip(ctx, id)
 	if err != nil {
 		return db.Trip{}, fmt.Errorf("unable to delete trip: %w", err)

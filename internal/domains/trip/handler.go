@@ -8,17 +8,17 @@ import (
 	"strconv"
 )
 
-type Handler struct {
-	*Service
+type TripHandler struct {
+	*TripService
 }
 
-func NewTripHandler(s *Service) *Handler {
-	return &Handler{
+func NewTripHandler(s *TripService) *TripHandler {
+	return &TripHandler{
 		s,
 	}
 }
 
-func (h *Handler) StartTrip(w http.ResponseWriter, r *http.Request) {
+func (h *TripHandler) StartTrip(w http.ResponseWriter, r *http.Request) {
 	var userReq StartTripRequest
 	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
@@ -46,7 +46,7 @@ func (h *Handler) StartTrip(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) ViewAllTrips(w http.ResponseWriter, r *http.Request) {
+func (h *TripHandler) ViewAllTrips(w http.ResponseWriter, r *http.Request) {
 	trips, err := h.GetAllTrips(r.Context())
 	if err != nil {
 		http.Error(w, "failed to get all trips", http.StatusInternalServerError)
@@ -64,7 +64,7 @@ func (h *Handler) ViewAllTrips(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) ViewTripDetails(w http.ResponseWriter, r *http.Request) {
+func (h *TripHandler) ViewTripDetails(w http.ResponseWriter, r *http.Request) {
 	strId := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
@@ -89,7 +89,7 @@ func (h *Handler) ViewTripDetails(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *Handler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) {
+func (h *TripHandler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) {
 	strId := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
@@ -182,7 +182,7 @@ func (h *Handler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) DeleteTrip(w http.ResponseWriter, r *http.Request) {
+func (h *TripHandler) DeleteTrip(w http.ResponseWriter, r *http.Request) {
 	strId := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {

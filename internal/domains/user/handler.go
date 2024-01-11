@@ -10,19 +10,19 @@ import (
 	"net/http"
 )
 
-type Handler struct {
-	*Service
+type UserHandler struct {
+	*UserService
 	firebaseClient *auth.Client
 }
 
-func NewUserHandler(s *Service, fba *auth.Client) *Handler {
-	return &Handler{
+func NewUserHandler(s *UserService, fba *auth.Client) *UserHandler {
+	return &UserHandler{
 		s,
 		fba,
 	}
 }
 
-func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var userReq RegisterUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
@@ -61,7 +61,7 @@ func (h *Handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	var userReq LoginUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
@@ -90,7 +90,7 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (h *Handler) ViewUserDetails(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) ViewUserDetails(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	user, err := h.GetUserById(r.Context(), id)
@@ -109,7 +109,7 @@ func (h *Handler) ViewUserDetails(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) ViewAllUsers(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) ViewAllUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.GetAllUser(r.Context())
 	if err != nil {
 		http.Error(w, "failed to get all users", http.StatusInternalServerError)
@@ -127,7 +127,7 @@ func (h *Handler) ViewAllUsers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) SearchUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) SearchUser(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	username := query.Get("username")
 	email := query.Get("email")
@@ -164,7 +164,7 @@ func (h *Handler) SearchUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) ChangeUserProfilePicture(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) ChangeUserProfilePicture(w http.ResponseWriter, r *http.Request) {
 	/*
 	 todo: communicate with s3 to get url, then update the profile_picture field with the new url
 	*/
@@ -187,7 +187,7 @@ func (h *Handler) ChangeUserProfilePicture(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (h *Handler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	var userReq UpdateUserDetailRequest
@@ -263,7 +263,7 @@ func (h *Handler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	user, err := h.DeleteUserById(r.Context(), id)
