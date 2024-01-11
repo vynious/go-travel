@@ -20,7 +20,7 @@ INSERT INTO media (
 `
 
 type CreateMediaParams struct {
-	EntryID sql.NullInt64  `json:"entry_id"`
+	EntryID int64          `json:"entry_id"`
 	Url     sql.NullString `json:"url"`
 }
 
@@ -50,7 +50,7 @@ FROM media
 WHERE entry_id = $1
 `
 
-func (q *Queries) GetAllMediaByEntryId(ctx context.Context, entryID sql.NullInt64) ([]Medium, error) {
+func (q *Queries) GetAllMediaByEntryId(ctx context.Context, entryID int64) ([]Medium, error) {
 	rows, err := q.query(ctx, q.getAllMediaByEntryIdStmt, getAllMediaByEntryId, entryID)
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ FROM media
 WHERE travel_entry.trip_id = $1
 `
 
-func (q *Queries) GetAllMediaByTripId(ctx context.Context, tripID sql.NullInt64) ([]Medium, error) {
+func (q *Queries) GetAllMediaByTripId(ctx context.Context, tripID int64) ([]Medium, error) {
 	rows, err := q.query(ctx, q.getAllMediaByTripIdStmt, getAllMediaByTripId, tripID)
 	if err != nil {
 		return nil, err

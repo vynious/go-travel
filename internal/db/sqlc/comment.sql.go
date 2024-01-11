@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createComment = `-- name: CreateComment :one
@@ -21,9 +20,9 @@ INSERT INTO comment (
 `
 
 type CreateCommentParams struct {
-	EntryID sql.NullInt64  `json:"entry_id"`
-	UserID  sql.NullString `json:"user_id"`
-	Content sql.NullString `json:"content"`
+	EntryID int64  `json:"entry_id"`
+	UserID  string `json:"user_id"`
+	Content string `json:"content"`
 }
 
 func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error) {

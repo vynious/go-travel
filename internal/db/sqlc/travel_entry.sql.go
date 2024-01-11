@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createTravelEntry = `-- name: CreateTravelEntry :one
@@ -22,10 +21,10 @@ INSERT INTO travel_entry (
 `
 
 type CreateTravelEntryParams struct {
-	UserID      sql.NullString `json:"user_id"`
-	TripID      sql.NullInt64  `json:"trip_id"`
-	Location    sql.NullString `json:"location"`
-	Description sql.NullString `json:"description"`
+	UserID      string `json:"user_id"`
+	TripID      int64  `json:"trip_id"`
+	Location    string `json:"location"`
+	Description string `json:"description"`
 }
 
 func (q *Queries) CreateTravelEntry(ctx context.Context, arg CreateTravelEntryParams) (TravelEntry, error) {
@@ -105,7 +104,7 @@ FROM travel_entry
 WHERE trip_id = $1
 `
 
-func (q *Queries) GetAllTravelEntryByTripId(ctx context.Context, tripID sql.NullInt64) ([]TravelEntry, error) {
+func (q *Queries) GetAllTravelEntryByTripId(ctx context.Context, tripID int64) ([]TravelEntry, error) {
 	rows, err := q.query(ctx, q.getAllTravelEntryByTripIdStmt, getAllTravelEntryByTripId, tripID)
 	if err != nil {
 		return nil, err
@@ -142,8 +141,8 @@ WHERE trip_id = $1
 `
 
 type GetAllTravelEntryByUserIdAndTripIdParams struct {
-	TripID sql.NullInt64  `json:"trip_id"`
-	UserID sql.NullString `json:"user_id"`
+	TripID int64  `json:"trip_id"`
+	UserID string `json:"user_id"`
 }
 
 func (q *Queries) GetAllTravelEntryByUserIdAndTripId(ctx context.Context, arg GetAllTravelEntryByUserIdAndTripIdParams) ([]TravelEntry, error) {
@@ -203,8 +202,8 @@ WHERE id = $1
 `
 
 type UpdateTravelEntryDescriptionParams struct {
-	ID          int64          `json:"id"`
-	Description sql.NullString `json:"description"`
+	ID          int64  `json:"id"`
+	Description string `json:"description"`
 }
 
 func (q *Queries) UpdateTravelEntryDescription(ctx context.Context, arg UpdateTravelEntryDescriptionParams) (TravelEntry, error) {
@@ -228,8 +227,8 @@ WHERE id = $1
 `
 
 type UpdateTravelEntryLocationParams struct {
-	ID       int64          `json:"id"`
-	Location sql.NullString `json:"location"`
+	ID       int64  `json:"id"`
+	Location string `json:"location"`
 }
 
 func (q *Queries) UpdateTravelEntryLocation(ctx context.Context, arg UpdateTravelEntryLocationParams) (TravelEntry, error) {

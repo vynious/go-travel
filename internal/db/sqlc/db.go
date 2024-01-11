@@ -117,6 +117,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.updateTripCountryStmt, err = db.PrepareContext(ctx, updateTripCountry); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateTripCountry: %w", err)
 	}
+	if q.updateTripEndDateStmt, err = db.PrepareContext(ctx, updateTripEndDate); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateTripEndDate: %w", err)
+	}
 	if q.updateTripStartDateStmt, err = db.PrepareContext(ctx, updateTripStartDate); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateTripStartDate: %w", err)
 	}
@@ -295,6 +298,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing updateTripCountryStmt: %w", cerr)
 		}
 	}
+	if q.updateTripEndDateStmt != nil {
+		if cerr := q.updateTripEndDateStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateTripEndDateStmt: %w", cerr)
+		}
+	}
 	if q.updateTripStartDateStmt != nil {
 		if cerr := q.updateTripStartDateStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateTripStartDateStmt: %w", cerr)
@@ -395,6 +403,7 @@ type Queries struct {
 	updateTravelEntryDescriptionStmt       *sql.Stmt
 	updateTravelEntryLocationStmt          *sql.Stmt
 	updateTripCountryStmt                  *sql.Stmt
+	updateTripEndDateStmt                  *sql.Stmt
 	updateTripStartDateStmt                *sql.Stmt
 	updateTripTitleStmt                    *sql.Stmt
 	updateUserEmailStmt                    *sql.Stmt
@@ -438,6 +447,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		updateTravelEntryDescriptionStmt:       q.updateTravelEntryDescriptionStmt,
 		updateTravelEntryLocationStmt:          q.updateTravelEntryLocationStmt,
 		updateTripCountryStmt:                  q.updateTripCountryStmt,
+		updateTripEndDateStmt:                  q.updateTripEndDateStmt,
 		updateTripStartDateStmt:                q.updateTripStartDateStmt,
 		updateTripTitleStmt:                    q.updateTripTitleStmt,
 		updateUserEmailStmt:                    q.updateUserEmailStmt,

@@ -6,7 +6,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 type Querier interface {
@@ -22,12 +21,12 @@ type Querier interface {
 	DeleteTravelEntry(ctx context.Context, id int64) (TravelEntry, error)
 	DeleteTrip(ctx context.Context, id int64) (Trip, error)
 	DeleteUser(ctx context.Context, id string) (User, error)
-	GetAllMediaByEntryId(ctx context.Context, entryID sql.NullInt64) ([]Medium, error)
-	GetAllMediaByTripId(ctx context.Context, tripID sql.NullInt64) ([]Medium, error)
+	GetAllMediaByEntryId(ctx context.Context, entryID int64) ([]Medium, error)
+	GetAllMediaByTripId(ctx context.Context, tripID int64) ([]Medium, error)
 	GetAllMediaByTripIdAndUserId(ctx context.Context, arg GetAllMediaByTripIdAndUserIdParams) ([]Medium, error)
 	GetAllMediaByUserId(ctx context.Context, userID string) ([]Medium, error)
 	GetAllTravelEntry(ctx context.Context) ([]TravelEntry, error)
-	GetAllTravelEntryByTripId(ctx context.Context, tripID sql.NullInt64) ([]TravelEntry, error)
+	GetAllTravelEntryByTripId(ctx context.Context, tripID int64) ([]TravelEntry, error)
 	GetAllTravelEntryByUserIdAndTripId(ctx context.Context, arg GetAllTravelEntryByUserIdAndTripIdParams) ([]TravelEntry, error)
 	GetConnectionsByUserId(ctx context.Context, partyA string) ([]GetConnectionsByUserIdRow, error)
 	GetTravelEntryById(ctx context.Context, id int64) (TravelEntry, error)
@@ -41,6 +40,7 @@ type Querier interface {
 	UpdateTravelEntryDescription(ctx context.Context, arg UpdateTravelEntryDescriptionParams) (TravelEntry, error)
 	UpdateTravelEntryLocation(ctx context.Context, arg UpdateTravelEntryLocationParams) (TravelEntry, error)
 	UpdateTripCountry(ctx context.Context, arg UpdateTripCountryParams) (Trip, error)
+	UpdateTripEndDate(ctx context.Context, arg UpdateTripEndDateParams) (Trip, error)
 	UpdateTripStartDate(ctx context.Context, arg UpdateTripStartDateParams) (Trip, error)
 	UpdateTripTitle(ctx context.Context, arg UpdateTripTitleParams) (Trip, error)
 	UpdateUserEmail(ctx context.Context, arg UpdateUserEmailParams) (User, error)

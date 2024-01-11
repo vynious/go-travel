@@ -10,11 +10,11 @@ import (
 )
 
 type Comment struct {
-	ID          int64          `json:"id"`
-	EntryID     sql.NullInt64  `json:"entry_id"`
-	UserID      sql.NullString `json:"user_id"`
-	Content     sql.NullString `json:"content"`
-	CommentedOn time.Time      `json:"commented_on"`
+	ID          int64     `json:"id"`
+	EntryID     int64     `json:"entry_id"`
+	UserID      string    `json:"user_id"`
+	Content     string    `json:"content"`
+	CommentedOn time.Time `json:"commented_on"`
 }
 
 type Connection struct {
@@ -25,24 +25,24 @@ type Connection struct {
 
 type Medium struct {
 	ID      int64          `json:"id"`
-	EntryID sql.NullInt64  `json:"entry_id"`
+	EntryID int64          `json:"entry_id"`
 	Url     sql.NullString `json:"url"`
 }
 
 type TravelEntry struct {
-	ID          int64          `json:"id"`
-	UserID      sql.NullString `json:"user_id"`
-	TripID      sql.NullInt64  `json:"trip_id"`
-	Location    sql.NullString `json:"location"`
-	Description sql.NullString `json:"description"`
+	ID          int64  `json:"id"`
+	UserID      string `json:"user_id"`
+	TripID      int64  `json:"trip_id"`
+	Location    string `json:"location"`
+	Description string `json:"description"`
 }
 
 type Trip struct {
-	ID        int64          `json:"id"`
-	Title     sql.NullString `json:"title"`
-	Country   sql.NullString `json:"country"`
-	StartDate sql.NullTime   `json:"start_date"`
-	EndDate   sql.NullTime   `json:"end_date"`
+	ID        int64     `json:"id"`
+	Title     string    `json:"title"`
+	Country   string    `json:"country"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
 }
 
 type User struct {

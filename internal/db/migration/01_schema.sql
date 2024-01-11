@@ -10,15 +10,15 @@ CREATE TABLE users (
 
 CREATE TABLE trip (
                       id BIGSERIAL PRIMARY KEY,
-                      title VARCHAR(255),
-                      country VARCHAR(50),
-                      start_date DATE,
-                      end_date DATE
+                      title VARCHAR(255) NOT NULL,
+                      country VARCHAR(50) NOT NULL,
+                      start_date DATE NOT NULL,
+                      end_date DATE NOT NULL
 );
 
 CREATE TABLE connections (
-                             party_a VARCHAR(255),
-                             party_b VARCHAR(255),
+                             party_a VARCHAR(255) NOT NULL,
+                             party_b VARCHAR(255) NOT NULL,
                              PRIMARY KEY (party_a, party_b),
                              FOREIGN KEY (party_a) REFERENCES users(id) ON DELETE CASCADE,
                              FOREIGN KEY (party_b) REFERENCES users(id) ON DELETE CASCADE,
@@ -26,8 +26,8 @@ CREATE TABLE connections (
 );
 
 CREATE TABLE user_trip (
-                           trip_id BIGSERIAL,
-                           user_id VARCHAR(255),
+                           trip_id BIGSERIAL NOT NULL,
+                           user_id VARCHAR(255) NOT NULL,
                            PRIMARY KEY (trip_id, user_id),
                            FOREIGN KEY (trip_id) REFERENCES trip(id) ON DELETE CASCADE,
                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -35,26 +35,26 @@ CREATE TABLE user_trip (
 
 CREATE TABLE travel_entry (
                        id BIGSERIAL PRIMARY KEY,
-                       user_id VARCHAR(255),
-                       trip_id BIGSERIAL,
-                       location VARCHAR(255),
-                       description TEXT,
+                       user_id VARCHAR(255) NOT NULL,
+                       trip_id BIGSERIAL NOT NULL,
+                       location VARCHAR(255) NOT NULL,
+                       description TEXT NOT NULL,
                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                        FOREIGN KEY (trip_id) REFERENCES trip(id) ON DELETE CASCADE
 );
 
 CREATE TABLE media (
                        id BIGSERIAL PRIMARY KEY,
-                       entry_id BIGSERIAL,
+                       entry_id BIGSERIAL NOT NULL,
                        url VARCHAR(255),
                        FOREIGN KEY (entry_id) REFERENCES travel_entry(id) ON DELETE CASCADE
 );
 
 CREATE TABLE comment (
                          id BIGSERIAL PRIMARY KEY,
-                         entry_id BIGSERIAL,
-                         user_id VARCHAR(255),
-                         content TEXT,
+                         entry_id BIGSERIAL NOT NULL,
+                         user_id VARCHAR(255) NOT NULL,
+                         content TEXT NOT NULL,
                          commented_on DATE NOT NULL DEFAULT NOW(),
                          FOREIGN KEY (entry_id) REFERENCES travel_entry(id) ON DELETE CASCADE,
                          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

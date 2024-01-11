@@ -22,6 +22,12 @@ SET start_date = $2
 WHERE id = $1
     RETURNING *;
 
+-- name: UpdateTripEndDate :one
+UPDATE trip
+SET end_date = $2
+WHERE id = $1
+    RETURNING *;
+
 -- name: UpdateTripCountry :one
 UPDATE trip
 SET country = $2

@@ -7,7 +7,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
+	"time"
 )
 
 const createTrip = `-- name: CreateTrip :one
@@ -22,10 +22,10 @@ INSERT INTO trip (
 `
 
 type CreateTripParams struct {
-	Title     sql.NullString `json:"title"`
-	Country   sql.NullString `json:"country"`
-	StartDate sql.NullTime   `json:"start_date"`
-	EndDate   sql.NullTime   `json:"end_date"`
+	Title     string    `json:"title"`
+	Country   string    `json:"country"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
 }
 
 func (q *Queries) CreateTrip(ctx context.Context, arg CreateTripParams) (Trip, error) {
@@ -125,12 +125,37 @@ WHERE id = $1
 `
 
 type UpdateTripCountryParams struct {
-	ID      int64          `json:"id"`
-	Country sql.NullString `json:"country"`
+	ID      int64  `json:"id"`
+	Country string `json:"country"`
 }
 
 func (q *Queries) UpdateTripCountry(ctx context.Context, arg UpdateTripCountryParams) (Trip, error) {
 	row := q.queryRow(ctx, q.updateTripCountryStmt, updateTripCountry, arg.ID, arg.Country)
+	var i Trip
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Country,
+		&i.StartDate,
+		&i.EndDate,
+	)
+	return i, err
+}
+
+const updateTripEndDate = `-- name: UpdateTripEndDate :one
+UPDATE trip
+SET end_date = $2
+WHERE id = $1
+    RETURNING id, title, country, start_date, end_date
+`
+
+type UpdateTripEndDateParams struct {
+	ID      int64     `json:"id"`
+	EndDate time.Time `json:"end_date"`
+}
+
+func (q *Queries) UpdateTripEndDate(ctx context.Context, arg UpdateTripEndDateParams) (Trip, error) {
+	row := q.queryRow(ctx, q.updateTripEndDateStmt, updateTripEndDate, arg.ID, arg.EndDate)
 	var i Trip
 	err := row.Scan(
 		&i.ID,
@@ -150,8 +175,8 @@ WHERE id = $1
 `
 
 type UpdateTripStartDateParams struct {
-	ID        int64        `json:"id"`
-	StartDate sql.NullTime `json:"start_date"`
+	ID        int64     `json:"id"`
+	StartDate time.Time `json:"start_date"`
 }
 
 func (q *Queries) UpdateTripStartDate(ctx context.Context, arg UpdateTripStartDateParams) (Trip, error) {
@@ -175,8 +200,8 @@ WHERE id = $1
 `
 
 type UpdateTripTitleParams struct {
-	ID    int64          `json:"id"`
-	Title sql.NullString `json:"title"`
+	ID    int64  `json:"id"`
+	Title string `json:"title"`
 }
 
 func (q *Queries) UpdateTripTitle(ctx context.Context, arg UpdateTripTitleParams) (Trip, error) {
