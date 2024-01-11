@@ -37,6 +37,14 @@ func (s *Service) CreateNewTrip(ctx context.Context, title string, country strin
 	return trip, nil
 }
 
+func (s *Service) GetAllTrips(ctx context.Context) ([]db.Trip, error) {
+	trips, err := s.repository.Queries.ListTrips(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get trips: %w", err)
+	}
+	return trips, nil
+}
+
 func (s *Service) GetTripById(ctx context.Context, id int64) (db.Trip, error) {
 	trip, err := s.repository.Queries.GetTrip(ctx, id)
 	if err != nil {

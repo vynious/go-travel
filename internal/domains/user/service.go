@@ -35,6 +35,14 @@ func (s *Service) CreateNewUser(ctx context.Context, uid string, name string, us
 	return user, nil
 }
 
+func (s *Service) GetAllUser(ctx context.Context) ([]db.User, error) {
+	users, err := s.repository.Queries.ListUsers(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get all user: %w", err)
+	}
+	return users, nil
+}
+
 func (s *Service) GetUserById(ctx context.Context, id string) (db.User, error) {
 	user, err := s.repository.Queries.GetUser(ctx, id)
 	if err != nil {

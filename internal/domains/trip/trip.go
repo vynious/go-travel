@@ -22,3 +22,7 @@ type UpdateTripDetailRequest struct {
 type TripDetailResponse struct {
 	Trip db.Trip
 }
+
+type AllTripDetailResponse struct {
+	Trips []db.Trip
+}

@@ -107,7 +107,24 @@ func (h *Handler) ViewUserDetails(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to write response", http.StatusInternalServerError)
 		return
 	}
+}
 
+func (h *Handler) ViewAllUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := h.GetAllUser(r.Context())
+	if err != nil {
+		http.Error(w, "failed to get all users", http.StatusInternalServerError)
+		return
+	}
+
+	response := AllUserDetailResponse{
+		Users: users,
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *Handler) SearchUser(w http.ResponseWriter, r *http.Request) {

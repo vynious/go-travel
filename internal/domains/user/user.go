@@ -23,3 +23,7 @@ type UpdateUserDetailRequest struct {
 	Email    *string
 	Username *string
 }
+
+type AllUserDetailResponse struct {
+	Users []db.User
+}

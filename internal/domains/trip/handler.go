@@ -46,6 +46,24 @@ func (h *Handler) StartTrip(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *Handler) ViewAllTrips(w http.ResponseWriter, r *http.Request) {
+	trips, err := h.GetAllTrips(r.Context())
+	if err != nil {
+		http.Error(w, "failed to get all trips", http.StatusInternalServerError)
+		return
+	}
+
+	response := AllTripDetailResponse{
+		Trips: trips,
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "failed to write response", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *Handler) ViewTripDetails(w http.ResponseWriter, r *http.Request) {
 	strId := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(strId, 10, 64)
@@ -156,6 +174,30 @@ func (h *Handler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) {
 
 	response := TripDetailResponse{
 		Trip: updatedTrip,
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "failed to write response", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *Handler) DeleteTrip(w http.ResponseWriter, r *http.Request) {
+	strId := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(strId, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid id params", http.StatusInternalServerError)
+		return
+	}
+
+	trip, err := h.DeleteTripById(r.Context(), id)
+	if err != nil {
+		http.Error(w, "failed to get delete trip", http.StatusNotFound)
+		return
+	}
+
+	response := TripDetailResponse{
+		Trip: trip,
 	}
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
