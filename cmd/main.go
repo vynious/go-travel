@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"github.com/vynious/go-travel/internal/auth"
+	"github.com/vynious/go-travel/internal/domains/auth"
 	"net/http"
 )
 

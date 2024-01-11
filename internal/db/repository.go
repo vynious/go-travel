@@ -1,6 +1,6 @@
 // interacting with the database [data access layer]
 
-package user
+package db
 
 import (
 	"database/sql"
@@ -8,13 +8,13 @@ import (
 )
 
 type Repository struct {
-	queries *sqlc.Queries
-	db      *sql.DB
+	Queries *sqlc.Queries
+	DB      *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) *Repository {
+func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
-		db:      db,
-		queries: sqlc.New(db),
+		DB:      db,
+		Queries: sqlc.New(db),
 	}
 }

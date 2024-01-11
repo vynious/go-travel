@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/go-chi/chi/v5"
-	"github.com/vynious/go-travel/internal/auth"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
+	"github.com/vynious/go-travel/internal/domains/auth"
 	"net/http"
 )
 
@@ -120,9 +120,9 @@ func (h *Handler) SearchUser(w http.ResponseWriter, r *http.Request) {
 
 	switch {
 	case username != "":
-		user, err = h.repository.queries.GetUserByUsername(r.Context(), username)
+		user, err = h.repository.Queries.GetUserByUsername(r.Context(), username)
 	case email != "":
-		user, err = h.repository.queries.GetUserByEmail(r.Context(), email)
+		user, err = h.repository.Queries.GetUserByEmail(r.Context(), email)
 	default:
 		http.Error(w, "No search parameters provided", http.StatusBadRequest)
 		return
@@ -179,7 +179,7 @@ func (h *Handler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := h.repository.db.BeginTx(r.Context(), nil)
+	tx, err := h.repository.DB.BeginTx(r.Context(), nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
