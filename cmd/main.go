@@ -1,17 +1,18 @@
 package main
 
 import (
-	"database/sql"
-	"github.com/vynious/go-travel/internal/domains/auth"
-	"net/http"
+	"github.com/vynious/go-travel/internal/http"
+	"log"
 )
 
-type App struct {
-	router         http.Handler
-	rdb            *sql.DB
-	firebaseClient *auth.Client
-}
-
 func main() {
+	app, err := http.NewApp()
+	if err != nil {
+		log.Fatalf("Failed to initialize application: %v", err)
+	}
 
+	// Start the application
+	if err := app.Start(); err != nil {
+		log.Fatalf("failed to start application: %v", err)
+	}
 }
