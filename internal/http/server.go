@@ -9,7 +9,7 @@ import (
 	auth "github.com/vynious/go-travel/internal/domains/auth"
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
-	"github.com/vynious/go-travel/internal/util"
+	"github.com/vynious/go-travel/pkg"
 	"log"
 	"net/http"
 	"os"
@@ -23,7 +23,7 @@ type App struct {
 	config         Config
 	rdb            *sql.DB
 	firebaseClient *auth.Client
-	logger         *util.Logger
+	logger         *pkg.Logger
 }
 
 func NewApp() (*App, error) {
@@ -50,10 +50,10 @@ func NewApp() (*App, error) {
 	tripHandler := trip.NewTripHandler(tripService)
 
 	app := &App{
-		router:         InitRouter(userHandler, tripHandler),
-		rdb:            database,
-		config:         LoadConfig(),
-		logger:         util.NewLogger(),
+		router: InitRouter(userHandler, tripHandler),
+		rdb:    database,
+		config: LoadConfig(),
+		//logger:         util.NewLogger(),
 		firebaseClient: fireClient,
 	}
 
@@ -75,13 +75,13 @@ func (a *App) Start() error {
 	// Start the server in a goroutine
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Could not listen on %s: %v\n", server.Addr, err)
+			pkg.Log.Error("Could not listen on %s: %v\n", server.Addr, err)
 		}
 	}()
 
 	// Wait for interrupt signal to gracefully shut down the server
 	<-quit
-	log.Println("Shutting down server...")
+	pkg.Log.Info("Shutting down server.")
 
 	// Create a deadline to wait for.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -97,16 +97,13 @@ func (a *App) Start() error {
 		log.Printf("Error during application cleanup: %v", err)
 	}
 
-	a.logger.Info("Server and resources closed successfully.")
-	log.Println("Server and resources closed successfully.")
+	pkg.Log.Info("Server and resources closed successfully.")
 	return nil
 }
 
 func (a *App) Close() error {
-
 	if err := a.rdb.Close(); err != nil {
 		return fmt.Errorf("error closing database: %w", err)
 	}
-
 	return nil
 }

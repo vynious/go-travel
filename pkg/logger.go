@@ -1,4 +1,4 @@
-package util
+package pkg
 
 import (
 	"fmt"
@@ -17,16 +17,21 @@ const (
 	ErrorLevel Level = "ERROR"
 )
 
-type Logger struct {
-	*Logger
-}
+type Logger struct{}
 
-func NewLogger() *Logger {
-	return &Logger{}
+var Log Logger
+
+func init() {
+	// Initialize the global logger instance here if needed
+	Log = Logger{}
 }
 
 func getCallerInfo() (string, string) {
-	pc, file, _, ok := runtime.Caller(2) // 2 levels up the stack
+	// Ascend 3 levels up the stack:
+	// 1. getCallerInfo itself
+	// 2. the log method (Info, Warn, Error, etc.)
+	// 3. the actual caller of the log method
+	pc, file, _, ok := runtime.Caller(3) // Change this to 3
 	if !ok {
 		return "unknown", "unknown"
 	}
