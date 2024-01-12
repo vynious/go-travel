@@ -5,7 +5,6 @@ import (
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
 	"fmt"
-	"github.com/joho/godotenv"
 	"github.com/vynious/go-travel/pkg"
 	"google.golang.org/api/option"
 	"log"
@@ -13,12 +12,6 @@ import (
 
 type Client struct {
 	fbClient *auth.Client
-}
-
-func NewAuth() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("unable to load .env: %v", err)
-	}
 }
 
 func NewFirebaseClient() (*Client, error) {
@@ -97,8 +90,8 @@ func (client *Client) DeleteUser(ctx context.Context, uid string) error {
 	return nil
 }
 
-func (client *Client) CreateCustomToken(ctx context.Context, uuid string) (string, error) {
-	token, err := client.fbClient.CustomToken(ctx, uuid)
+func (client *Client) CreateCustomToken(ctx context.Context, uid string) (string, error) {
+	token, err := client.fbClient.CustomToken(ctx, uid)
 	if err != nil {
 		return "", fmt.Errorf("error creating custom token: %w", err)
 	}

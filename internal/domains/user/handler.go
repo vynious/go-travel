@@ -73,7 +73,7 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) GenerateToken(w http.ResponseWriter, r *http.Request) {
 
 	var userReq LoginUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
@@ -81,25 +81,30 @@ func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	email := userReq.Email
-	password := userReq.Password
-	exist, err := h.VerifyUserExistence(r.Context(), email, password)
+	//password := userReq.Password
+
+	user, err := h.GetUserByEmail(r.Context(), email)
 	if err != nil {
-		http.Error(w, "", http.StatusInternalServerError)
+		http.Error(w, "wrong email", http.StatusNotFound)
+		return
+	}
+	id := user.ID
+
+	token, err := h.firebaseClient.CreateCustomToken(r.Context(), id)
+	if err != nil {
+		http.Error(w, "failed to generate token", http.StatusInternalServerError)
 		return
 	}
 
-	if exist {
-
-	} else {
-
+	response := LoginUserResponse{
+		Token: token,
 	}
-	/*
 
-		todo: send email and password to firebase for verification
-
-	*/
-
-	return
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *UserHandler) ViewUserDetails(w http.ResponseWriter, r *http.Request) {
@@ -245,11 +250,13 @@ func (h *UserHandler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) 
 		email := *userReq.Email
 		updated = true
 		user, err := h.UpdateUserEmailById(r.Context(), id, email)
+		_, err = h.firebaseClient.UpdateUserEmail(r.Context(), id, email)
 		if err != nil {
 			tx.Rollback()
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		updatedUser = user
 	}
 
@@ -280,6 +287,11 @@ func (h *UserHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.DeleteUserById(r.Context(), id)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := h.firebaseClient.DeleteUser(r.Context(), id); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

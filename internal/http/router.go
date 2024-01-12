@@ -19,7 +19,7 @@ func InitRouter(userHandler *user.UserHandler, tripHandler *trip.TripHandler) ch
 
 	r.Route("/user", func(r chi.Router) {
 		r.Post("/create", userHandler.RegisterUser)
-		r.Post("/login", userHandler.LoginUser)
+		r.Post("/token", userHandler.GenerateToken)
 		r.Get("/view/{id}", userHandler.ViewUserDetails)
 		r.Get("/view/all", userHandler.ViewAllUsers)
 		r.Get("/search", userHandler.SearchUser)

@@ -27,3 +27,7 @@ type UpdateUserDetailRequest struct {
 type AllUserDetailResponse struct {
 	Users []db.User
 }
+
+type LoginUserResponse struct {
+	Token string
+}
