@@ -1,5 +1,5 @@
 
--- CreateUserTrip :one
+-- name: CreateUserTrip :one
 INSERT INTO user_trip (
                        trip_id,
                        user_id
@@ -8,8 +8,18 @@ INSERT INTO user_trip (
          ) RETURNING *;
 
 
--- DeleteUserTrip :one
+-- name: GetUserTripsByTripId :many
+SELECT * FROM USER_TRIP
+WHERE trip_id = $1;
+
+-- name: GetUserTripsByUserId :many
+SELECT * FROM USER_TRIP
+WHERE user_id = $1;
+
+-- name: DeleteUserTrip :one
 DELETE FROM USER_TRIP
 WHERE user_id = $1
   AND trip_id = $2
 RETURNING *;
+
+
