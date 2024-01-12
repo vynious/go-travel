@@ -17,13 +17,12 @@ const (
 	ErrorLevel Level = "ERROR"
 )
 
-type Logger struct{}
+type Logger struct {
+	*Logger
+}
 
-var Global Logger
-
-func init() {
-	// Initialize the global logger instance here if needed
-	Global = Logger{}
+func NewLogger() *Logger {
+	return &Logger{}
 }
 
 func getCallerInfo() (string, string) {

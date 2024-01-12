@@ -9,6 +9,7 @@ import (
 	auth "github.com/vynious/go-travel/internal/domains/auth"
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
+	"github.com/vynious/go-travel/internal/util"
 	"log"
 	"net/http"
 	"os"
@@ -22,6 +23,7 @@ type App struct {
 	config         Config
 	rdb            *sql.DB
 	firebaseClient *auth.Client
+	logger         *util.Logger
 }
 
 func NewApp() (*App, error) {
@@ -51,6 +53,7 @@ func NewApp() (*App, error) {
 		router:         InitRouter(userHandler, tripHandler),
 		rdb:            database,
 		config:         LoadConfig(),
+		logger:         util.NewLogger(),
 		firebaseClient: fireClient,
 	}
 
@@ -94,6 +97,7 @@ func (a *App) Start() error {
 		log.Printf("Error during application cleanup: %v", err)
 	}
 
+	a.logger.Info("Server and resources closed successfully.")
 	log.Println("Server and resources closed successfully.")
 	return nil
 }
