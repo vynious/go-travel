@@ -42,11 +42,11 @@ func getCallerInfo() (string, string) {
 	return shortFile, funcName
 }
 
-func (l Logger) log(level Level, args ...interface{}) {
+func (l Logger) log(level Level, format string, args ...interface{}) {
 	file, funcName := getCallerInfo()
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
-	message := fmt.Sprint(args...)
+	message := fmt.Sprintf(format, args...)
 
 	switch level {
 	case InfoLevel:
@@ -60,14 +60,14 @@ func (l Logger) log(level Level, args ...interface{}) {
 	}
 }
 
-func (l Logger) Info(args ...interface{}) {
-	l.log(InfoLevel, args...)
+func (l Logger) Info(format string, args ...interface{}) {
+	l.log(InfoLevel, format, args...)
 }
 
-func (l Logger) Warn(args ...interface{}) {
-	l.log(WarnLevel, args...)
+func (l Logger) Warn(format string, args ...interface{}) {
+	l.log(WarnLevel, format, args...)
 }
 
-func (l Logger) Error(args ...interface{}) {
-	l.log(ErrorLevel, args...)
+func (l Logger) Error(format string, args ...interface{}) {
+	l.log(ErrorLevel, format, args...)
 }

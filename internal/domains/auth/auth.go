@@ -6,6 +6,7 @@ import (
 	"firebase.google.com/go/auth"
 	"fmt"
 	"github.com/joho/godotenv"
+	"github.com/vynious/go-travel/pkg"
 	"google.golang.org/api/option"
 	"log"
 )
@@ -47,7 +48,7 @@ func (client *Client) CreateNewUser(ctx context.Context, name string, email stri
 	if err != nil {
 		return nil, fmt.Errorf("error creating user: %w", err)
 	}
-	log.Printf("Successfully created user: %v\n", u)
+	pkg.Log.Info("Successfully created user: %+v\n", *u)
 	return u, nil
 }
 
@@ -92,6 +93,7 @@ func (client *Client) DeleteUser(ctx context.Context, uid string) error {
 	if err := client.fbClient.DeleteUser(ctx, uid); err != nil {
 		return fmt.Errorf("error deleting user: %w", err)
 	}
+	pkg.Log.Info("Successfully deleted user")
 	return nil
 }
 

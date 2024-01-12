@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"github.com/vynious/go-travel/internal/domains/auth"
+	"github.com/vynious/go-travel/pkg"
 	"net/http"
 )
 
@@ -25,6 +26,7 @@ func NewUserHandler(s *UserService, fba *auth.Client) *UserHandler {
 func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var userReq RegisterUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
+		pkg.Log.Error("invalid request body: %w", err)
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
@@ -39,14 +41,23 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	password := userReq.Password
 	fuser, err := h.firebaseClient.CreateNewUser(r.Context(), name, email, password)
 	if err != nil {
+		pkg.Log.Error("[firebase] failed to create user: %w", err)
 		http.Error(w, "failed to create user", http.StatusInternalServerError)
 		return
 	}
+
 	uid := fuser.UID
 
 	user, err := h.CreateNewUser(r.Context(), uid, name, username, email)
 	if err != nil {
 		// handle error, write error response
+		// rollback firebase creation
+		pkg.Log.Error("failed to create user: %w", err)
+		if errf := h.firebaseClient.DeleteUser(r.Context(), uid); errf != nil {
+			pkg.Log.Error("[firebase] failed to delete user: %w", errf)
+			pkg.Log.Error("ggwp.")
+		}
+		pkg.Log.Warn("[firebase] deleted user due to local db constraints")
 		http.Error(w, "failed to create user", http.StatusInternalServerError)
 		return
 	}
@@ -56,6 +67,7 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		User: user,
 	}
 	if err := json.NewEncoder(w).Encode(response); err != nil {
+		pkg.Log.Error("failed to write response: %w", err)
 		http.Error(w, "failed to write response", http.StatusInternalServerError)
 		return
 	}

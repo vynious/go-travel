@@ -23,7 +23,6 @@ type App struct {
 	config         Config
 	rdb            *sql.DB
 	firebaseClient *auth.Client
-	logger         *pkg.Logger
 }
 
 func NewApp() (*App, error) {
@@ -50,10 +49,9 @@ func NewApp() (*App, error) {
 	tripHandler := trip.NewTripHandler(tripService)
 
 	app := &App{
-		router: InitRouter(userHandler, tripHandler),
-		rdb:    database,
-		config: LoadConfig(),
-		//logger:         util.NewLogger(),
+		router:         InitRouter(userHandler, tripHandler),
+		rdb:            database,
+		config:         LoadConfig(),
 		firebaseClient: fireClient,
 	}
 
