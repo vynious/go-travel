@@ -9,6 +9,7 @@ import (
 	auth "github.com/vynious/go-travel/internal/domains/auth"
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
+	"github.com/vynious/go-travel/internal/domains/user_trip"
 	"github.com/vynious/go-travel/pkg"
 	"log"
 	"net/http"
@@ -26,30 +27,31 @@ type App struct {
 }
 
 func NewApp() (*App, error) {
-	dsn := "postgresql://shawntyw:shawntyw@localhost/godb?sslmode=disable"
 
+	dsn := "postgresql://shawntyw:shawntyw@localhost/godb?sslmode=disable"
 	// Open the database
 	database, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("error opening database: %w", err)
 	}
+	repo := db.NewRepository(database)
 
 	// Open Firebase Auth
 	fireClient, err := auth.NewFirebaseClient()
 	if err != nil {
 		return nil, fmt.Errorf("error starting firebase: %w", err)
 	}
-
-	repo := db.NewRepository(database)
-
 	userService := user.NewUserService(repo)
 	userHandler := user.NewUserHandler(userService, fireClient)
 
 	tripService := trip.NewTripService(repo)
 	tripHandler := trip.NewTripHandler(tripService)
 
+	usertripService := user_trip.NewUserTripService(repo)
+	usertripHandler := user_trip.NewUserTripHandler(usertripService)
+
 	app := &App{
-		router:         InitRouter(userHandler, tripHandler),
+		router:         InitRouter(userHandler, tripHandler, usertripHandler),
 		rdb:            database,
 		config:         LoadConfig(),
 		firebaseClient: fireClient,
