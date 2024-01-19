@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/vynious/go-travel/internal/db"
 	auth "github.com/vynious/go-travel/internal/domains/auth"
+	"github.com/vynious/go-travel/internal/domains/travel_entry"
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
 	"github.com/vynious/go-travel/internal/domains/user_trip"
@@ -50,8 +51,15 @@ func NewApp() (*App, error) {
 	usertripService := user_trip.NewUserTripService(repo)
 	usertripHandler := user_trip.NewUserTripHandler(usertripService)
 
+	travelEntryService := travel_entry.NewTravelEntryService(repo)
+	travelEntryHandler := travel_entry.NewTravelEntryHandler(travelEntryService)
+
 	app := &App{
-		router:         InitRouter(userHandler, tripHandler, usertripHandler),
+		router: InitRouter(
+			userHandler,
+			tripHandler,
+			usertripHandler,
+			travelEntryHandler),
 		rdb:            database,
 		config:         LoadConfig(),
 		firebaseClient: fireClient,
