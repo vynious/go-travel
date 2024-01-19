@@ -46,7 +46,7 @@ func (h *TravelEntryHandler) EnterTravelEntry(w http.ResponseWriter, r *http.Req
 }
 
 func (h *TravelEntryHandler) ViewTravelEntry(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
+	strId := chi.URLParam(r, "entryId")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
 		http.Error(w, "invalid id params", http.StatusInternalServerError)
@@ -68,7 +68,7 @@ func (h *TravelEntryHandler) ViewTravelEntry(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *TravelEntryHandler) ViewTravelEntriesUnderTrip(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
+	strId := chi.URLParam(r, "tripId")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
 		http.Error(w, "invalid id params", http.StatusInternalServerError)
@@ -88,9 +88,8 @@ func (h *TravelEntryHandler) ViewTravelEntriesUnderTrip(w http.ResponseWriter, r
 }
 
 func (h *TravelEntryHandler) ViewTravelEntriesUnderTripAndUser(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	uid := query.Get("uid")
-	strTID := query.Get("tid")
+	uid := chi.URLParam(r, "userId")
+	strTID := chi.URLParam(r, "tripId")
 
 	tid, err := strconv.ParseInt(strTID, 10, 64)
 	if err != nil {
@@ -116,7 +115,7 @@ func (h *TravelEntryHandler) ViewTravelEntriesUnderTripAndUser(w http.ResponseWr
 }
 
 func (h *TravelEntryHandler) UpdateTravelEntry(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
+	strId := chi.URLParam(r, "entryId")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
 		http.Error(w, "invalid id params", http.StatusInternalServerError)
@@ -185,7 +184,7 @@ func (h *TravelEntryHandler) UpdateTravelEntry(w http.ResponseWriter, r *http.Re
 }
 
 func (h *TravelEntryHandler) DeleteTravelEntry(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
+	strId := chi.URLParam(r, "entryId")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
 		http.Error(w, "invalid id params", http.StatusInternalServerError)

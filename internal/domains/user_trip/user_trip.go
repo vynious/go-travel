@@ -4,7 +4,6 @@ import db "github.com/vynious/go-travel/internal/db/sqlc"
 
 type AddUserTripRequest struct {
 	UserId string
-	TripId int64
 }
 
 type UserTripDetailResponse struct {

@@ -65,7 +65,7 @@ func (h *TripHandler) ViewAllTrips(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TripHandler) ViewTripDetails(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
+	strId := chi.URLParam(r, "tripId")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
 		http.Error(w, "invalid id params", http.StatusInternalServerError)
@@ -90,7 +90,7 @@ func (h *TripHandler) ViewTripDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TripHandler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
+	strId := chi.URLParam(r, "tripId")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
 		http.Error(w, "invalid id params", http.StatusInternalServerError)
@@ -183,7 +183,7 @@ func (h *TripHandler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *TripHandler) DeleteTrip(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
+	strId := chi.URLParam(r, "tripId")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
 		http.Error(w, "invalid id params", http.StatusInternalServerError)

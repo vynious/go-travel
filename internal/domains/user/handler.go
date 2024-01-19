@@ -108,7 +108,7 @@ func (h *UserHandler) GenerateToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) ViewUserDetails(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "userId")
 
 	user, err := h.GetUserById(r.Context(), id)
 	if err != nil {
@@ -186,7 +186,7 @@ func (h *UserHandler) ChangeUserProfilePicture(w http.ResponseWriter, r *http.Re
 	 todo: communicate with s3 to get url, then update the profile_picture field with the new url
 	*/
 	var url string // replace
-	id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "userId")
 
 	user, err := h.UpdateUserPictureById(r.Context(), id, url)
 	if err != nil {
@@ -205,7 +205,7 @@ func (h *UserHandler) ChangeUserProfilePicture(w http.ResponseWriter, r *http.Re
 }
 
 func (h *UserHandler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "userId")
 
 	var userReq UpdateUserDetailRequest
 	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
@@ -283,7 +283,7 @@ func (h *UserHandler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *UserHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "userId")
 
 	user, err := h.DeleteUserById(r.Context(), id)
 	if err != nil {

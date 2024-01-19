@@ -18,16 +18,22 @@ func NewUserTripHandler(s *UserTripService) *UserTripHandler {
 }
 
 func (h *UserTripHandler) AddUserToTrip(w http.ResponseWriter, r *http.Request) {
+	strTID := chi.URLParam(r, "tripId")
+	tid, err := strconv.ParseInt(strTID, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid tid params", http.StatusInternalServerError)
+		return
+	}
+
 	var userReq AddUserTripRequest
 	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	userId := userReq.UserId
-	tripId := userReq.TripId
+	uid := userReq.UserId
 
-	ut, err := h.CreateNewUserTrip(r.Context(), userId, tripId)
+	ut, err := h.CreateNewUserTrip(r.Context(), uid, tid)
 	if err != nil {
 		http.Error(w, "failed to create usertrip", http.StatusInternalServerError)
 		return
@@ -46,7 +52,7 @@ func (h *UserTripHandler) AddUserToTrip(w http.ResponseWriter, r *http.Request) 
 
 func (h *UserTripHandler) GetAllTripsForUserId(w http.ResponseWriter, r *http.Request) {
 
-	id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "userId")
 	uts, err := h.GetUserTripByUserId(r.Context(), id)
 	if err != nil {
 		http.Error(w, "failed to get user trips", http.StatusNotFound)
@@ -65,7 +71,7 @@ func (h *UserTripHandler) GetAllTripsForUserId(w http.ResponseWriter, r *http.Re
 }
 
 func (h *UserTripHandler) GetAllUsersOnTripId(w http.ResponseWriter, r *http.Request) {
-	strId := chi.URLParam(r, "id")
+	strId := chi.URLParam(r, "tripId")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
 		http.Error(w, "invalid id params", http.StatusInternalServerError)
@@ -90,9 +96,8 @@ func (h *UserTripHandler) GetAllUsersOnTripId(w http.ResponseWriter, r *http.Req
 }
 
 func (h *UserTripHandler) DeleteUserFromTripId(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	uid := query.Get("uid")
-	strTID := query.Get("tid")
+	uid := chi.URLParam(r, "userId")
+	strTID := chi.URLParam(r, "tripId")
 
 	tid, err := strconv.ParseInt(strTID, 10, 64)
 	if err != nil {

@@ -26,20 +26,20 @@ func InitRouter(
 	r.Route("/users", func(r chi.Router) {
 		r.Post("/", userHandler.RegisterUser)
 		r.Post("/token", userHandler.GenerateToken)
-		r.Get("/{id}", userHandler.ViewUserDetails)
+		r.Get("/{userId}", userHandler.ViewUserDetails)
 		r.Get("/", userHandler.ViewAllUsers)
 		r.Get("/search", userHandler.SearchUser)
-		r.Patch("/{id}/profile-picture", userHandler.ChangeUserProfilePicture)
-		r.Patch("/{id}/details", userHandler.ChangeUserDetails)
-		r.Delete("/{id}", userHandler.DeleteAccount)
+		r.Patch("/{userId}/profile-picture", userHandler.ChangeUserProfilePicture)
+		r.Patch("/{userId}/details", userHandler.ChangeUserDetails)
+		r.Delete("/{userId}", userHandler.DeleteAccount)
 	})
 
 	r.Route("/trips", func(r chi.Router) {
 		r.Post("/", tripHandler.StartTrip)
-		r.Get("/{id}", tripHandler.ViewTripDetails)
+		r.Get("/{tripId}", tripHandler.ViewTripDetails)
 		r.Get("/", tripHandler.ViewAllTrips)
-		r.Patch("/{id}", tripHandler.ChangeTripDetails)
-		r.Delete("/{id}", tripHandler.DeleteTrip)
+		r.Patch("/{tripId}", tripHandler.ChangeTripDetails)
+		r.Delete("/{tripId}", tripHandler.DeleteTrip)
 	})
 
 	r.Route("/trip-assignments", func(r chi.Router) {
@@ -51,11 +51,11 @@ func InitRouter(
 
 	r.Route("/travel-entries", func(r chi.Router) {
 		r.Post("/", travelEntryHandler.EnterTravelEntry)
-		r.Get("/{id}", travelEntryHandler.ViewTravelEntry)
+		r.Get("/{entryId}", travelEntryHandler.ViewTravelEntry)
 		r.Get("/trips/{tripId}", travelEntryHandler.ViewTravelEntriesUnderTrip)
 		r.Get("/users/{userId}/trips/{tripId}", travelEntryHandler.ViewTravelEntriesUnderTripAndUser)
-		r.Patch("/{id}", travelEntryHandler.UpdateTravelEntry)
-		r.Delete("/{id}", travelEntryHandler.DeleteTravelEntry)
+		r.Patch("/{entryId}", travelEntryHandler.UpdateTravelEntry)
+		r.Delete("/{entryId}", travelEntryHandler.DeleteTravelEntry)
 	})
 
 	return r
