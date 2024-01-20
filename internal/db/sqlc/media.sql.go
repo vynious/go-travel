@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createMedia = `-- name: CreateMedia :one
@@ -20,8 +19,8 @@ INSERT INTO media (
 `
 
 type CreateMediaParams struct {
-	EntryID int64          `json:"entry_id"`
-	Url     sql.NullString `json:"url"`
+	EntryID int64  `json:"entry_id"`
+	Url     string `json:"url"`
 }
 
 func (q *Queries) CreateMedia(ctx context.Context, arg CreateMediaParams) (Medium, error) {
@@ -170,6 +169,19 @@ func (q *Queries) GetAllMediaByUserId(ctx context.Context, userID string) ([]Med
 	return items, nil
 }
 
+const getMediaById = `-- name: GetMediaById :one
+SELECT id, entry_id, url
+FROM MEDIA
+WHERE id = $1
+`
+
+func (q *Queries) GetMediaById(ctx context.Context, id int64) (Medium, error) {
+	row := q.queryRow(ctx, q.getMediaByIdStmt, getMediaById, id)
+	var i Medium
+	err := row.Scan(&i.ID, &i.EntryID, &i.Url)
+	return i, err
+}
+
 const updateMediaById = `-- name: UpdateMediaById :one
 UPDATE media
 SET url = $2
@@ -178,8 +190,8 @@ WHERE id = $1
 `
 
 type UpdateMediaByIdParams struct {
-	ID  int64          `json:"id"`
-	Url sql.NullString `json:"url"`
+	ID  int64  `json:"id"`
+	Url string `json:"url"`
 }
 
 func (q *Queries) UpdateMediaById(ctx context.Context, arg UpdateMediaByIdParams) (Medium, error) {

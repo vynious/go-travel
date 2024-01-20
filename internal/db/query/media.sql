@@ -39,7 +39,10 @@ FROM media
          JOIN user_trip ON travel_entry.trip_id = user_trip.trip_id
 WHERE user_trip.trip_id = $1 AND user_trip.user_id = $2;
 
-
+-- name: GetMediaById :one
+SELECT *
+FROM MEDIA
+WHERE id = $1;
 
 
 -- name: UpdateMediaById :one

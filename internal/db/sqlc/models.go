@@ -24,9 +24,9 @@ type Connection struct {
 }
 
 type Medium struct {
-	ID      int64          `json:"id"`
-	EntryID int64          `json:"entry_id"`
-	Url     sql.NullString `json:"url"`
+	ID      int64  `json:"id"`
+	EntryID int64  `json:"entry_id"`
+	Url     string `json:"url"`
 }
 
 type TravelEntry struct {

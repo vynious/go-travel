@@ -90,6 +90,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getConnectionsByUserIdStmt, err = db.PrepareContext(ctx, getConnectionsByUserId); err != nil {
 		return nil, fmt.Errorf("error preparing query GetConnectionsByUserId: %w", err)
 	}
+	if q.getMediaByIdStmt, err = db.PrepareContext(ctx, getMediaById); err != nil {
+		return nil, fmt.Errorf("error preparing query GetMediaById: %w", err)
+	}
 	if q.getTravelEntryByIdStmt, err = db.PrepareContext(ctx, getTravelEntryById); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTravelEntryById: %w", err)
 	}
@@ -265,6 +268,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getConnectionsByUserIdStmt: %w", cerr)
 		}
 	}
+	if q.getMediaByIdStmt != nil {
+		if cerr := q.getMediaByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getMediaByIdStmt: %w", cerr)
+		}
+	}
 	if q.getTravelEntryByIdStmt != nil {
 		if cerr := q.getTravelEntryByIdStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getTravelEntryByIdStmt: %w", cerr)
@@ -426,6 +434,7 @@ type Queries struct {
 	getAllTravelEntryByTripIdStmt          *sql.Stmt
 	getAllTravelEntryByUserIdAndTripIdStmt *sql.Stmt
 	getConnectionsByUserIdStmt             *sql.Stmt
+	getMediaByIdStmt                       *sql.Stmt
 	getTravelEntryByIdStmt                 *sql.Stmt
 	getTripStmt                            *sql.Stmt
 	getUserStmt                            *sql.Stmt
@@ -474,6 +483,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getAllTravelEntryByTripIdStmt:          q.getAllTravelEntryByTripIdStmt,
 		getAllTravelEntryByUserIdAndTripIdStmt: q.getAllTravelEntryByUserIdAndTripIdStmt,
 		getConnectionsByUserIdStmt:             q.getConnectionsByUserIdStmt,
+		getMediaByIdStmt:                       q.getMediaByIdStmt,
 		getTravelEntryByIdStmt:                 q.getTravelEntryByIdStmt,
 		getTripStmt:                            q.getTripStmt,
 		getUserStmt:                            q.getUserStmt,

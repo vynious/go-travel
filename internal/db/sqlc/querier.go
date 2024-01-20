@@ -31,6 +31,7 @@ type Querier interface {
 	GetAllTravelEntryByTripId(ctx context.Context, tripID int64) ([]TravelEntry, error)
 	GetAllTravelEntryByUserIdAndTripId(ctx context.Context, arg GetAllTravelEntryByUserIdAndTripIdParams) ([]TravelEntry, error)
 	GetConnectionsByUserId(ctx context.Context, partyA string) ([]GetConnectionsByUserIdRow, error)
+	GetMediaById(ctx context.Context, id int64) (Medium, error)
 	GetTravelEntryById(ctx context.Context, id int64) (TravelEntry, error)
 	GetTrip(ctx context.Context, id int64) (Trip, error)
 	GetUser(ctx context.Context, id string) (User, error)

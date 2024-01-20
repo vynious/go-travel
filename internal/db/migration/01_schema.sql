@@ -46,7 +46,7 @@ CREATE TABLE travel_entry (
 CREATE TABLE media (
                        id BIGSERIAL PRIMARY KEY,
                        entry_id BIGSERIAL NOT NULL,
-                       url VARCHAR(255),
+                       url VARCHAR(255) NOT NULL,
                        FOREIGN KEY (entry_id) REFERENCES travel_entry(id) ON DELETE CASCADE
 );
 
