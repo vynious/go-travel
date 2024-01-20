@@ -10,11 +10,11 @@ import (
 	"log"
 )
 
-type Client struct {
+type FBClient struct {
 	fbClient *auth.Client
 }
 
-func NewFirebaseClient() (*Client, error) {
+func NewFirebaseClient() (*FBClient, error) {
 	opt := option.WithCredentialsFile("../firebase.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
@@ -25,12 +25,12 @@ func NewFirebaseClient() (*Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to firebase: %w", err)
 	}
-	return &Client{
+	return &FBClient{
 		fbClient: fireAuth,
 	}, nil
 }
 
-func (client *Client) CreateNewUser(ctx context.Context, name string, email string, password string) (*auth.UserRecord, error) {
+func (client *FBClient) CreateNewUser(ctx context.Context, name string, email string, password string) (*auth.UserRecord, error) {
 	params := (&auth.UserToCreate{}).
 		Email(email).
 		EmailVerified(false).
@@ -45,11 +45,11 @@ func (client *Client) CreateNewUser(ctx context.Context, name string, email stri
 	return u, nil
 }
 
-func (client *Client) GetUser(ctx context.Context, email string, password string) (*auth.UserRecord, error) {
+func (client *FBClient) GetUser(ctx context.Context, email string, password string) (*auth.UserRecord, error) {
 	return nil, nil
 }
 
-func (client *Client) UpdateUserEmail(ctx context.Context, uid string, email string) (*auth.UserRecord, error) {
+func (client *FBClient) UpdateUserEmail(ctx context.Context, uid string, email string) (*auth.UserRecord, error) {
 	params := (&auth.UserToUpdate{}).
 		Email(email)
 	u, err := client.fbClient.UpdateUser(ctx, uid, params)
@@ -60,7 +60,7 @@ func (client *Client) UpdateUserEmail(ctx context.Context, uid string, email str
 	return u, nil
 }
 
-func (client *Client) UpdateUserPassword(ctx context.Context, uid string, password string) (*auth.UserRecord, error) {
+func (client *FBClient) UpdateUserPassword(ctx context.Context, uid string, password string) (*auth.UserRecord, error) {
 	params := (&auth.UserToUpdate{}).
 		Password(password)
 	u, err := client.fbClient.UpdateUser(ctx, uid, params)
@@ -71,7 +71,7 @@ func (client *Client) UpdateUserPassword(ctx context.Context, uid string, passwo
 	return u, nil
 }
 
-func (client *Client) UpdateUserName(ctx context.Context, uid string, name string) (*auth.UserRecord, error) {
+func (client *FBClient) UpdateUserName(ctx context.Context, uid string, name string) (*auth.UserRecord, error) {
 	params := (&auth.UserToUpdate{}).
 		DisplayName(name)
 	u, err := client.fbClient.UpdateUser(ctx, uid, params)
@@ -82,7 +82,7 @@ func (client *Client) UpdateUserName(ctx context.Context, uid string, name strin
 	return u, nil
 }
 
-func (client *Client) DeleteUser(ctx context.Context, uid string) error {
+func (client *FBClient) DeleteUser(ctx context.Context, uid string) error {
 	if err := client.fbClient.DeleteUser(ctx, uid); err != nil {
 		return fmt.Errorf("error deleting user: %w", err)
 	}
@@ -90,7 +90,7 @@ func (client *Client) DeleteUser(ctx context.Context, uid string) error {
 	return nil
 }
 
-func (client *Client) CreateCustomToken(ctx context.Context, uid string) (string, error) {
+func (client *FBClient) CreateCustomToken(ctx context.Context, uid string) (string, error) {
 	token, err := client.fbClient.CustomToken(ctx, uid)
 	if err != nil {
 		return "", fmt.Errorf("error creating custom token: %w", err)
