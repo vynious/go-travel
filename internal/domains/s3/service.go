@@ -26,3 +26,30 @@ func NewS3Client() (*S3Client, error) {
 		s3Client: svc,
 	}, nil
 }
+
+func (client *S3Client) UploadMediaToBucket() {
+	//input := &s3.PutObjectInput{}
+	//output, err := client.s3Client.PutObject(input)
+	//if err != nil {
+	//
+	//}
+}
+
+func (client *S3Client) GetMediaFromBucket() {
+	//input := &s3.GetObjectInput{
+	//	Bucket: &bucketName,
+	//	Key:    &key,
+	//}
+	//output, err := client.s3Client.GetObject(input)
+	//if err != nil {
+	//
+	//}
+}
+
+func (client *S3Client) UpdateMediaFromBucket() {
+
+}
+
+func (client *S3Client) DeleteMediaFromBucket() {
+
+}
