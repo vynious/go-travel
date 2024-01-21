@@ -4,27 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8586202-de8c-4d1a-90bb-b81c7852f63d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/internal/domains/s3/s3.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/go-travel.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/domains/comment/comment.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/comment/comment.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/domains/comment/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/comment/handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/domains/comment/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/comment/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/domains/media/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/media/handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/domains/media/media.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/media/media.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/domains/media/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/media/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/domains/s3/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/s3/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/domains/travel_entry/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/travel_entry/handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/domains/travel_entry/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/travel_entry/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/http/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/http/server.go" afterDir="false" />
-    </list>
+    <list default="true" id="c8586202-de8c-4d1a-90bb-b81c7852f63d" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

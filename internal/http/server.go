@@ -7,6 +7,8 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/vynious/go-travel/internal/db"
 	auth "github.com/vynious/go-travel/internal/domains/auth"
+	"github.com/vynious/go-travel/internal/domains/media"
+	"github.com/vynious/go-travel/internal/domains/s3"
 	"github.com/vynious/go-travel/internal/domains/travel_entry"
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
@@ -52,7 +54,12 @@ func NewApp() (*App, error) {
 	usertripHandler := user_trip.NewUserTripHandler(usertripService)
 
 	travelEntryService := travel_entry.NewTravelEntryService(repo)
-	travelEntryHandler := travel_entry.NewTravelEntryHandler(travelEntryService)
+	s3Service, err := s3.NewS3Client()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create s3 service :%w", err)
+	}
+	mediaService := media.NewMediaService(repo, s3Service)
+	travelEntryHandler := travel_entry.NewTravelEntryHandler(travelEntryService, mediaService)
 
 	app := &App{
 		router: InitRouter(

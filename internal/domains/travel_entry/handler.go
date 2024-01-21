@@ -57,7 +57,7 @@ func (h *TravelEntryHandler) EnterTravelEntry(w http.ResponseWriter, r *http.Req
 		go func(fh *multipart.FileHeader) {
 			file, err := fh.Open()
 			if err != nil {
-
+				http.Error(w, "failed to open media", http.StatusInternalServerError)
 				return
 			}
 
@@ -67,7 +67,7 @@ func (h *TravelEntryHandler) EnterTravelEntry(w http.ResponseWriter, r *http.Req
 			}
 
 			if _, err := h.mediaService.CreateNewMedia(r.Context(), entry.ID, fileData); err != nil {
-
+				http.Error(w, "failed to create upload media", http.StatusInternalServerError)
 				return
 			}
 			file.Close()
