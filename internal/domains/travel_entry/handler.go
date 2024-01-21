@@ -4,37 +4,77 @@ import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
+	"github.com/vynious/go-travel/internal/domains/media"
+	"github.com/vynious/go-travel/internal/domains/s3"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 )
 
 type TravelEntryHandler struct {
 	*TravelEntryService
+	mediaService *media.MediaService
 }
 
-func NewTravelEntryHandler(s *TravelEntryService) *TravelEntryHandler {
+func NewTravelEntryHandler(s *TravelEntryService, m *media.MediaService) *TravelEntryHandler {
 	return &TravelEntryHandler{
 		s,
+		m,
 	}
 }
 
 func (h *TravelEntryHandler) EnterTravelEntry(w http.ResponseWriter, r *http.Request) {
-	var userReq NewTravelEntryRequest
-	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
+	// Parse the multipart form to get file and fields
+	if err := r.ParseMultipartForm(32 << 20); err != nil { // 32MB max memory
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
-	uid := userReq.UserId
-	tid := userReq.TripId
-	location := userReq.Location
-	description := userReq.Description
 
+	// Retrieve other form values
+	uid := r.FormValue("UserId")
+	strTID := r.FormValue("TripId")
+	location := r.FormValue("Location")
+	description := r.FormValue("Description")
+
+	tid, err := strconv.ParseInt(strTID, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid id params", http.StatusInternalServerError)
+		return
+	}
+
+	// Create the travel entry in the database
 	entry, err := h.CreateNewTravelEntry(r.Context(), uid, tid, location, description)
 	if err != nil {
 		http.Error(w, "failed to create travel entry", http.StatusInternalServerError)
 		return
 	}
 
+	// todo: finish return statements for errors
+	files := r.MultipartForm.File["media"]
+
+	// loop to create new media
+	for _, fileHeader := range files {
+		go func(fh *multipart.FileHeader) {
+			file, err := fh.Open()
+			if err != nil {
+
+				return
+			}
+
+			fileData := s3.FileInput{
+				File:     file,
+				Filename: generateS3Key(entry.ID, fh.Filename),
+			}
+
+			if _, err := h.mediaService.CreateNewMedia(r.Context(), entry.ID, fileData); err != nil {
+
+				return
+			}
+			file.Close()
+		}(fileHeader)
+	}
+
+	// Send the response back
 	w.WriteHeader(http.StatusCreated)
 	response := TravelEntryDetailResponse{
 		TravelEntry: entry,

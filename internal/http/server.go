@@ -24,7 +24,7 @@ type App struct {
 	router         http.Handler
 	config         Config
 	rdb            *sql.DB
-	firebaseClient *auth.Client
+	firebaseClient *auth.FBClient
 }
 
 func NewApp() (*App, error) {

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/../go-travel/internal/db/migration/01_schema.sql" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/../go-travel/internal/db/query/travel_entry.sql" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/../go-travel/internal/db/query/user.sql" dialect="GenericSQL" />
-  </component>
-</project>

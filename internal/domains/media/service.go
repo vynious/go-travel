@@ -5,27 +5,36 @@ import (
 	"fmt"
 	repo "github.com/vynious/go-travel/internal/db"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
+	"github.com/vynious/go-travel/internal/domains/s3"
 	"time"
 )
 
 type MediaService struct {
 	repository *repo.Repository
+	s3Client   *s3.S3Client
 	timeout    time.Duration
 }
 
-func NewMediaService(repo *repo.Repository) *MediaService {
+func NewMediaService(repo *repo.Repository, s *s3.S3Client) *MediaService {
 	return &MediaService{
 		repository: repo,
+		s3Client:   s,
 		timeout:    time.Duration(2) * time.Second,
 	}
 }
 
-func (s *MediaService) CreateNewMedia(ctx context.Context, eid int64, url string) (db.Medium, error) {
+func (s *MediaService) CreateNewMedia(ctx context.Context, eid int64, fileData s3.FileInput) (db.Medium, error) {
+
+	if err := s.s3Client.UploadMediaToBucket(ctx, fileData); err != nil {
+		return db.Medium{}, fmt.Errorf("failed to uploaded media to s3 :%w", err)
+	}
+
 	params := db.CreateMediaParams{
 		EntryID: eid,
-		Url:     url,
+		Url:     fileData.Filename,
 	}
 	media, err := s.repository.Queries.CreateMedia(ctx, params)
+
 	if err != nil {
 		return db.Medium{}, fmt.Errorf("[s] failed to create media: %w", err)
 	}
