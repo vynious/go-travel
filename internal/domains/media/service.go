@@ -3,9 +3,11 @@ package media
 import (
 	"context"
 	"fmt"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	repo "github.com/vynious/go-travel/internal/db"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
-	"github.com/vynious/go-travel/internal/domains/s3"
+	"github.com/vynious/go-travel/internal/domains/media/s3"
+	"sync"
 	"time"
 )
 
@@ -23,22 +25,21 @@ func NewMediaService(repo *repo.Repository, s *s3.S3Client) *MediaService {
 	}
 }
 
-func (s *MediaService) CreateNewMedia(ctx context.Context, eid int64, fileData s3.FileInput) (db.Medium, error) {
-
-	if err := s.s3Client.UploadMediaToBucket(ctx, fileData); err != nil {
-		return db.Medium{}, fmt.Errorf("failed to uploaded media to s3 :%w", err)
+func (s *MediaService) CreateNewMedia(ctx context.Context, eid int64, fileData FileInput) (*v4.PresignedHTTPRequest, error) {
+	url, err := s.s3Client.PutSignedMediaToBucket(ctx, fileData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to uploaded media to s3 :%w", err)
 	}
 
 	params := db.CreateMediaParams{
 		EntryID: eid,
 		Url:     fileData.Filename,
 	}
-	media, err := s.repository.Queries.CreateMedia(ctx, params)
-
+	_, err = s.repository.Queries.CreateMedia(ctx, params)
 	if err != nil {
-		return db.Medium{}, fmt.Errorf("[s] failed to create media: %w", err)
+		return nil, fmt.Errorf("[s] failed to create media: %w", err)
 	}
-	return media, nil
+	return url, nil
 }
 
 func (s *MediaService) GetMediaById(ctx context.Context, mid int64) (db.Medium, error) {
@@ -49,12 +50,44 @@ func (s *MediaService) GetMediaById(ctx context.Context, mid int64) (db.Medium, 
 	return media, nil
 }
 
-func (s *MediaService) GetMediasByEntryId(ctx context.Context, eid int64) ([]db.Medium, error) {
+func (s *MediaService) GetMediasByEntryId(ctx context.Context, eid int64) ([]*v4.PresignedHTTPRequest, error) {
 	medias, err := s.repository.Queries.GetAllMediaByEntryId(ctx, eid)
 	if err != nil {
-		return []db.Medium{}, fmt.Errorf("[s] failed to get medias :%w", err)
+		return nil, fmt.Errorf("failed to get all media :%w", err)
 	}
-	return medias, nil
+	presignedUrls := make([]*v4.PresignedHTTPRequest, len(medias))
+	errCh := make(chan error, len(medias))
+
+	var wg sync.WaitGroup
+	// for loop for getting signed urls
+	for i, media := range medias {
+		// goroutine to get signed urls, if fail pass into errCh if success assigned into array based on idx
+		wg.Add(1)
+		go func(m db.Medium, idx int) {
+			defer wg.Done()
+			url, err := s.s3Client.GetSignedMediaFromBucket(ctx, m.Url)
+			if err != nil {
+				errCh <- fmt.Errorf("failed to  generate signed url: %w", err)
+				return
+			}
+			presignedUrls[idx] = url
+			errCh <- nil
+		}(media, i)
+	}
+
+	// check err channel for any errors from getting signed urls
+	go func() {
+		wg.Wait()
+		close(errCh)
+	}()
+
+	for i := 0; i < len(medias); i++ {
+		if err := <-errCh; err != nil {
+			return nil, err
+		}
+	}
+
+	return presignedUrls, nil
 }
 
 func (s *MediaService) UpdateMediaById(ctx context.Context, mid int64, url string) (db.Medium, error) {

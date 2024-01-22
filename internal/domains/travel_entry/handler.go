@@ -2,13 +2,15 @@ package travel_entry
 
 import (
 	"encoding/json"
+	"fmt"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/go-chi/chi/v5"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"github.com/vynious/go-travel/internal/domains/media"
-	"github.com/vynious/go-travel/internal/domains/s3"
 	"mime/multipart"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 type TravelEntryHandler struct {
@@ -49,36 +51,62 @@ func (h *TravelEntryHandler) EnterTravelEntry(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// todo: finish return statements for errors
 	files := r.MultipartForm.File["media"]
 
+	var wg sync.WaitGroup
+
+	presignedUrls := make([]*v4.PresignedHTTPRequest, len(files))
+	errCh := make(chan error, 2*len(files))
+
 	// loop to create new media
-	for _, fileHeader := range files {
-		go func(fh *multipart.FileHeader) {
+	for i, fileHeader := range files {
+		wg.Add(1)
+		go func(fh *multipart.FileHeader, idx int) {
+			defer wg.Done()
+
 			file, err := fh.Open()
 			if err != nil {
-				http.Error(w, "failed to open media", http.StatusInternalServerError)
+				errCh <- fmt.Errorf("failed to open file: %w", err)
 				return
 			}
+			defer file.Close()
 
-			fileData := s3.FileInput{
+			fileData := media.FileInput{
 				File:     file,
 				Filename: generateS3Key(entry.ID, fh.Filename),
 			}
 
-			if _, err := h.mediaService.CreateNewMedia(r.Context(), entry.ID, fileData); err != nil {
-				http.Error(w, "failed to create upload media", http.StatusInternalServerError)
+			url, err := h.mediaService.CreateNewMedia(r.Context(), entry.ID, fileData)
+			if err != nil {
+				errCh <- fmt.Errorf(
+					"failed to create new media :%w", err)
 				return
 			}
-			file.Close()
-		}(fileHeader)
+
+			presignedUrls[idx] = url
+			errCh <- nil
+		}(fileHeader, i)
 	}
 
-	// Send the response back
-	w.WriteHeader(http.StatusCreated)
-	response := TravelEntryDetailResponse{
-		TravelEntry: entry,
+	go func() {
+		wg.Wait()
+		close(errCh)
+	}()
+
+	for i := 0; i < 2*len(files); i++ {
+		if err := <-errCh; err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
+
+	// Send the response back with x amount of pre-signed urls
+	w.WriteHeader(http.StatusCreated)
+	response := TravelEntryDetailWithMediaResponse{
+		TravelEntry: entry,
+		SignedUrls:  presignedUrls,
+	}
+
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "failed to write response", http.StatusInternalServerError)
 		return
@@ -97,9 +125,15 @@ func (h *TravelEntryHandler) ViewTravelEntry(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "failed to get travel entry details", http.StatusNotFound)
 		return
 	}
+	urls, err := h.mediaService.GetMediasByEntryId(r.Context(), id)
+	if err != nil {
+		http.Error(w, "failed to get signed media urls for travel entry", http.StatusNotFound)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
-	response := TravelEntryDetailResponse{
+	response := TravelEntryDetailWithMediaResponse{
 		TravelEntry: entry,
+		SignedUrls:  urls,
 	}
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "failed to write response", http.StatusInternalServerError)

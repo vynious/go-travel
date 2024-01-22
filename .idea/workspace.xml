@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8586202-de8c-4d1a-90bb-b81c7852f63d" name="Changes" comment="" />
+    <list default="true" id="c8586202-de8c-4d1a-90bb-b81c7852f63d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/internal/domains/media/s3/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/domains/media/media.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/media/media.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/domains/media/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/media/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/domains/s3/s3.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/domains/s3/service.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/domains/travel_entry/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/travel_entry/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/domains/travel_entry/travel_entry.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/domains/travel_entry/travel_entry.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/http/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/http/server.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -66,6 +76,7 @@
       <recent name="$PROJECT_DIR$/internal" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/internal/domains/media" />
       <recent name="$PROJECT_DIR$/cmd" />
       <recent name="$PROJECT_DIR$/internal" />
     </key>

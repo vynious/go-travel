@@ -1,6 +1,9 @@
 package travel_entry
 
-import db "github.com/vynious/go-travel/internal/db/sqlc"
+import (
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	db "github.com/vynious/go-travel/internal/db/sqlc"
+)
 
 type NewTravelEntryRequest struct {
 	UserId      string
@@ -20,4 +23,9 @@ type TravelEntriesDetailResponse struct {
 type UpdateTravelEntryRequest struct {
 	Location    *string
 	Description *string
+}
+
+type TravelEntryDetailWithMediaResponse struct {
+	TravelEntry db.TravelEntry
+	SignedUrls  []*v4.PresignedHTTPRequest
 }

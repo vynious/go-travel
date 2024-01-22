@@ -8,7 +8,7 @@ import (
 	"github.com/vynious/go-travel/internal/db"
 	auth "github.com/vynious/go-travel/internal/domains/auth"
 	"github.com/vynious/go-travel/internal/domains/media"
-	"github.com/vynious/go-travel/internal/domains/s3"
+	"github.com/vynious/go-travel/internal/domains/media/s3"
 	"github.com/vynious/go-travel/internal/domains/travel_entry"
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
