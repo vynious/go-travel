@@ -51,8 +51,8 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteConnectionByUserIdStmt, err = db.PrepareContext(ctx, deleteConnectionByUserId); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteConnectionByUserId: %w", err)
 	}
-	if q.deleteMediaByIdStmt, err = db.PrepareContext(ctx, deleteMediaById); err != nil {
-		return nil, fmt.Errorf("error preparing query DeleteMediaById: %w", err)
+	if q.deleteMediaByKeyStmt, err = db.PrepareContext(ctx, deleteMediaByKey); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteMediaByKey: %w", err)
 	}
 	if q.deleteTravelEntryStmt, err = db.PrepareContext(ctx, deleteTravelEntry); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteTravelEntry: %w", err)
@@ -90,8 +90,8 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getConnectionsByUserIdStmt, err = db.PrepareContext(ctx, getConnectionsByUserId); err != nil {
 		return nil, fmt.Errorf("error preparing query GetConnectionsByUserId: %w", err)
 	}
-	if q.getMediaByIdStmt, err = db.PrepareContext(ctx, getMediaById); err != nil {
-		return nil, fmt.Errorf("error preparing query GetMediaById: %w", err)
+	if q.getMediaByKeyStmt, err = db.PrepareContext(ctx, getMediaByKey); err != nil {
+		return nil, fmt.Errorf("error preparing query GetMediaByKey: %w", err)
 	}
 	if q.getTravelEntryByIdStmt, err = db.PrepareContext(ctx, getTravelEntryById); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTravelEntryById: %w", err)
@@ -120,8 +120,8 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.listUsersStmt, err = db.PrepareContext(ctx, listUsers); err != nil {
 		return nil, fmt.Errorf("error preparing query ListUsers: %w", err)
 	}
-	if q.updateMediaByIdStmt, err = db.PrepareContext(ctx, updateMediaById); err != nil {
-		return nil, fmt.Errorf("error preparing query UpdateMediaById: %w", err)
+	if q.updateMediaByKeyStmt, err = db.PrepareContext(ctx, updateMediaByKey); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateMediaByKey: %w", err)
 	}
 	if q.updateTravelEntryDescriptionStmt, err = db.PrepareContext(ctx, updateTravelEntryDescription); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateTravelEntryDescription: %w", err)
@@ -203,9 +203,9 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteConnectionByUserIdStmt: %w", cerr)
 		}
 	}
-	if q.deleteMediaByIdStmt != nil {
-		if cerr := q.deleteMediaByIdStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing deleteMediaByIdStmt: %w", cerr)
+	if q.deleteMediaByKeyStmt != nil {
+		if cerr := q.deleteMediaByKeyStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteMediaByKeyStmt: %w", cerr)
 		}
 	}
 	if q.deleteTravelEntryStmt != nil {
@@ -268,9 +268,9 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getConnectionsByUserIdStmt: %w", cerr)
 		}
 	}
-	if q.getMediaByIdStmt != nil {
-		if cerr := q.getMediaByIdStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getMediaByIdStmt: %w", cerr)
+	if q.getMediaByKeyStmt != nil {
+		if cerr := q.getMediaByKeyStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getMediaByKeyStmt: %w", cerr)
 		}
 	}
 	if q.getTravelEntryByIdStmt != nil {
@@ -318,9 +318,9 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing listUsersStmt: %w", cerr)
 		}
 	}
-	if q.updateMediaByIdStmt != nil {
-		if cerr := q.updateMediaByIdStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing updateMediaByIdStmt: %w", cerr)
+	if q.updateMediaByKeyStmt != nil {
+		if cerr := q.updateMediaByKeyStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateMediaByKeyStmt: %w", cerr)
 		}
 	}
 	if q.updateTravelEntryDescriptionStmt != nil {
@@ -421,7 +421,7 @@ type Queries struct {
 	createUserTripStmt                     *sql.Stmt
 	deleteCommentByIdStmt                  *sql.Stmt
 	deleteConnectionByUserIdStmt           *sql.Stmt
-	deleteMediaByIdStmt                    *sql.Stmt
+	deleteMediaByKeyStmt                   *sql.Stmt
 	deleteTravelEntryStmt                  *sql.Stmt
 	deleteTripStmt                         *sql.Stmt
 	deleteUserStmt                         *sql.Stmt
@@ -434,7 +434,7 @@ type Queries struct {
 	getAllTravelEntryByTripIdStmt          *sql.Stmt
 	getAllTravelEntryByUserIdAndTripIdStmt *sql.Stmt
 	getConnectionsByUserIdStmt             *sql.Stmt
-	getMediaByIdStmt                       *sql.Stmt
+	getMediaByKeyStmt                      *sql.Stmt
 	getTravelEntryByIdStmt                 *sql.Stmt
 	getTripStmt                            *sql.Stmt
 	getUserStmt                            *sql.Stmt
@@ -444,7 +444,7 @@ type Queries struct {
 	getUserTripsByUserIdStmt               *sql.Stmt
 	listTripsStmt                          *sql.Stmt
 	listUsersStmt                          *sql.Stmt
-	updateMediaByIdStmt                    *sql.Stmt
+	updateMediaByKeyStmt                   *sql.Stmt
 	updateTravelEntryDescriptionStmt       *sql.Stmt
 	updateTravelEntryLocationStmt          *sql.Stmt
 	updateTripCountryStmt                  *sql.Stmt
@@ -470,7 +470,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createUserTripStmt:                     q.createUserTripStmt,
 		deleteCommentByIdStmt:                  q.deleteCommentByIdStmt,
 		deleteConnectionByUserIdStmt:           q.deleteConnectionByUserIdStmt,
-		deleteMediaByIdStmt:                    q.deleteMediaByIdStmt,
+		deleteMediaByKeyStmt:                   q.deleteMediaByKeyStmt,
 		deleteTravelEntryStmt:                  q.deleteTravelEntryStmt,
 		deleteTripStmt:                         q.deleteTripStmt,
 		deleteUserStmt:                         q.deleteUserStmt,
@@ -483,7 +483,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getAllTravelEntryByTripIdStmt:          q.getAllTravelEntryByTripIdStmt,
 		getAllTravelEntryByUserIdAndTripIdStmt: q.getAllTravelEntryByUserIdAndTripIdStmt,
 		getConnectionsByUserIdStmt:             q.getConnectionsByUserIdStmt,
-		getMediaByIdStmt:                       q.getMediaByIdStmt,
+		getMediaByKeyStmt:                      q.getMediaByKeyStmt,
 		getTravelEntryByIdStmt:                 q.getTravelEntryByIdStmt,
 		getTripStmt:                            q.getTripStmt,
 		getUserStmt:                            q.getUserStmt,
@@ -493,7 +493,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getUserTripsByUserIdStmt:               q.getUserTripsByUserIdStmt,
 		listTripsStmt:                          q.listTripsStmt,
 		listUsersStmt:                          q.listUsersStmt,
-		updateMediaByIdStmt:                    q.updateMediaByIdStmt,
+		updateMediaByKeyStmt:                   q.updateMediaByKeyStmt,
 		updateTravelEntryDescriptionStmt:       q.updateTravelEntryDescriptionStmt,
 		updateTravelEntryLocationStmt:          q.updateTravelEntryLocationStmt,
 		updateTripCountryStmt:                  q.updateTripCountryStmt,

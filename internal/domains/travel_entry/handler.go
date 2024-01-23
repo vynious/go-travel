@@ -3,7 +3,6 @@ package travel_entry
 import (
 	"encoding/json"
 	"fmt"
-	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/go-chi/chi/v5"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"github.com/vynious/go-travel/internal/domains/media"
@@ -55,35 +54,21 @@ func (h *TravelEntryHandler) EnterTravelEntry(w http.ResponseWriter, r *http.Req
 
 	var wg sync.WaitGroup
 
-	presignedUrls := make([]*v4.PresignedHTTPRequest, len(files))
-	errCh := make(chan error, 2*len(files))
+	result := make([]*media.MediaResponse, len(files))
+	errCh := make(chan error, len(files))
 
 	// loop to create new media
 	for i, fileHeader := range files {
 		wg.Add(1)
 		go func(fh *multipart.FileHeader, idx int) {
 			defer wg.Done()
-
-			file, err := fh.Open()
-			if err != nil {
-				errCh <- fmt.Errorf("failed to open file: %w", err)
-				return
-			}
-			defer file.Close()
-
-			fileData := media.FileInput{
-				File:     file,
-				Filename: generateS3Key(entry.ID, fh.Filename),
-			}
-
-			url, err := h.mediaService.CreateNewMedia(r.Context(), entry.ID, fileData)
+			response, err := h.mediaService.CreateNewMedia(r.Context(), entry.ID, fh.Filename)
 			if err != nil {
 				errCh <- fmt.Errorf(
 					"failed to create new media :%w", err)
 				return
 			}
-
-			presignedUrls[idx] = url
+			result[idx] = response
 			errCh <- nil
 		}(fileHeader, i)
 	}
@@ -93,7 +78,7 @@ func (h *TravelEntryHandler) EnterTravelEntry(w http.ResponseWriter, r *http.Req
 		close(errCh)
 	}()
 
-	for i := 0; i < 2*len(files); i++ {
+	for i := 0; i < len(files); i++ {
 		if err := <-errCh; err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -104,7 +89,7 @@ func (h *TravelEntryHandler) EnterTravelEntry(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusCreated)
 	response := TravelEntryDetailWithMediaResponse{
 		TravelEntry: entry,
-		SignedUrls:  presignedUrls,
+		SignedMedia: result,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -125,7 +110,7 @@ func (h *TravelEntryHandler) ViewTravelEntry(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "failed to get travel entry details", http.StatusNotFound)
 		return
 	}
-	urls, err := h.mediaService.GetMediasByEntryId(r.Context(), id)
+	data, err := h.mediaService.GetMediasByEntryId(r.Context(), id)
 	if err != nil {
 		http.Error(w, "failed to get signed media urls for travel entry", http.StatusNotFound)
 		return
@@ -133,7 +118,7 @@ func (h *TravelEntryHandler) ViewTravelEntry(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 	response := TravelEntryDetailWithMediaResponse{
 		TravelEntry: entry,
-		SignedUrls:  urls,
+		SignedMedia: data,
 	}
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "failed to write response", http.StatusInternalServerError)
@@ -158,7 +143,6 @@ func (h *TravelEntryHandler) ViewTravelEntriesUnderTrip(w http.ResponseWriter, r
 		http.Error(w, "failed to write response", http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func (h *TravelEntryHandler) ViewTravelEntriesUnderTripAndUser(w http.ResponseWriter, r *http.Request) {
@@ -189,6 +173,9 @@ func (h *TravelEntryHandler) ViewTravelEntriesUnderTripAndUser(w http.ResponseWr
 }
 
 func (h *TravelEntryHandler) UpdateTravelEntry(w http.ResponseWriter, r *http.Request) {
+
+	// todo:  how to update images in travel entry??
+
 	strId := chi.URLParam(r, "entryId")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
@@ -270,6 +257,8 @@ func (h *TravelEntryHandler) DeleteTravelEntry(w http.ResponseWriter, r *http.Re
 		http.Error(w, "failed to get delete travel entry", http.StatusNotFound)
 		return
 	}
+
+	// todo: add delete media by entry_id
 
 	response := TravelEntryDetailResponse{
 		TravelEntry: entry,

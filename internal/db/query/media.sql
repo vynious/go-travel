@@ -1,19 +1,18 @@
 -- name: CreateMedia :one
 INSERT INTO media (
                    entry_id,
-                   url
+                   key
 ) VALUES (
           $1, $2
          ) RETURNING *;
 
 
-
+-- view media by entry id,
 
 -- name: GetAllMediaByEntryId :many
 SELECT *
 FROM media
 WHERE entry_id = $1;
-
 
 
 -- name: GetAllMediaByTripId :many
@@ -32,6 +31,7 @@ FROM media
 WHERE user_trip.user_id = $1;
 
 
+
 -- name: GetAllMediaByTripIdAndUserId :many
 SELECT media.*
 FROM media
@@ -39,23 +39,26 @@ FROM media
          JOIN user_trip ON travel_entry.trip_id = user_trip.trip_id
 WHERE user_trip.trip_id = $1 AND user_trip.user_id = $2;
 
--- name: GetMediaById :one
+
+
+-- name: GetMediaByKey :one
 SELECT *
-FROM MEDIA
-WHERE id = $1;
+FROM media
+WHERE entry_id = $1 AND key = $2;
 
 
--- name: UpdateMediaById :one
+
+-- name: UpdateMediaByKey :one
 UPDATE media
-SET url = $2
-WHERE id = $1
-    RETURNING *;
+SET key = $3
+WHERE entry_id = $1 AND key = $2
+RETURNING *;
 
 
 
--- name: DeleteMediaById :one
+-- name: DeleteMediaByKey :one
 DELETE FROM media
-WHERE id = $1
-    RETURNING *;
+WHERE entry_id = $1 AND key = $2
+RETURNING *;
 
 

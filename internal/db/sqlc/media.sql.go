@@ -12,43 +12,50 @@ import (
 const createMedia = `-- name: CreateMedia :one
 INSERT INTO media (
                    entry_id,
-                   url
+                   key
 ) VALUES (
           $1, $2
-         ) RETURNING id, entry_id, url
+         ) RETURNING entry_id, key
 `
 
 type CreateMediaParams struct {
 	EntryID int64  `json:"entry_id"`
-	Url     string `json:"url"`
+	Key     string `json:"key"`
 }
 
 func (q *Queries) CreateMedia(ctx context.Context, arg CreateMediaParams) (Medium, error) {
-	row := q.queryRow(ctx, q.createMediaStmt, createMedia, arg.EntryID, arg.Url)
+	row := q.queryRow(ctx, q.createMediaStmt, createMedia, arg.EntryID, arg.Key)
 	var i Medium
-	err := row.Scan(&i.ID, &i.EntryID, &i.Url)
+	err := row.Scan(&i.EntryID, &i.Key)
 	return i, err
 }
 
-const deleteMediaById = `-- name: DeleteMediaById :one
+const deleteMediaByKey = `-- name: DeleteMediaByKey :one
 DELETE FROM media
-WHERE id = $1
-    RETURNING id, entry_id, url
+WHERE entry_id = $1 AND key = $2
+RETURNING entry_id, key
 `
 
-func (q *Queries) DeleteMediaById(ctx context.Context, id int64) (Medium, error) {
-	row := q.queryRow(ctx, q.deleteMediaByIdStmt, deleteMediaById, id)
+type DeleteMediaByKeyParams struct {
+	EntryID int64  `json:"entry_id"`
+	Key     string `json:"key"`
+}
+
+func (q *Queries) DeleteMediaByKey(ctx context.Context, arg DeleteMediaByKeyParams) (Medium, error) {
+	row := q.queryRow(ctx, q.deleteMediaByKeyStmt, deleteMediaByKey, arg.EntryID, arg.Key)
 	var i Medium
-	err := row.Scan(&i.ID, &i.EntryID, &i.Url)
+	err := row.Scan(&i.EntryID, &i.Key)
 	return i, err
 }
 
 const getAllMediaByEntryId = `-- name: GetAllMediaByEntryId :many
-SELECT id, entry_id, url
+
+SELECT entry_id, key
 FROM media
 WHERE entry_id = $1
 `
 
+// view media by entry id,
 func (q *Queries) GetAllMediaByEntryId(ctx context.Context, entryID int64) ([]Medium, error) {
 	rows, err := q.query(ctx, q.getAllMediaByEntryIdStmt, getAllMediaByEntryId, entryID)
 	if err != nil {
@@ -58,7 +65,7 @@ func (q *Queries) GetAllMediaByEntryId(ctx context.Context, entryID int64) ([]Me
 	items := []Medium{}
 	for rows.Next() {
 		var i Medium
-		if err := rows.Scan(&i.ID, &i.EntryID, &i.Url); err != nil {
+		if err := rows.Scan(&i.EntryID, &i.Key); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -73,7 +80,7 @@ func (q *Queries) GetAllMediaByEntryId(ctx context.Context, entryID int64) ([]Me
 }
 
 const getAllMediaByTripId = `-- name: GetAllMediaByTripId :many
-SELECT media.id, media.entry_id, media.url
+SELECT media.entry_id, media.key
 FROM media
          JOIN travel_entry ON media.entry_id = travel_entry.id
 WHERE travel_entry.trip_id = $1
@@ -88,7 +95,7 @@ func (q *Queries) GetAllMediaByTripId(ctx context.Context, tripID int64) ([]Medi
 	items := []Medium{}
 	for rows.Next() {
 		var i Medium
-		if err := rows.Scan(&i.ID, &i.EntryID, &i.Url); err != nil {
+		if err := rows.Scan(&i.EntryID, &i.Key); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -103,7 +110,7 @@ func (q *Queries) GetAllMediaByTripId(ctx context.Context, tripID int64) ([]Medi
 }
 
 const getAllMediaByTripIdAndUserId = `-- name: GetAllMediaByTripIdAndUserId :many
-SELECT media.id, media.entry_id, media.url
+SELECT media.entry_id, media.key
 FROM media
          JOIN travel_entry ON media.entry_id = travel_entry.id
          JOIN user_trip ON travel_entry.trip_id = user_trip.trip_id
@@ -124,7 +131,7 @@ func (q *Queries) GetAllMediaByTripIdAndUserId(ctx context.Context, arg GetAllMe
 	items := []Medium{}
 	for rows.Next() {
 		var i Medium
-		if err := rows.Scan(&i.ID, &i.EntryID, &i.Url); err != nil {
+		if err := rows.Scan(&i.EntryID, &i.Key); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -139,7 +146,7 @@ func (q *Queries) GetAllMediaByTripIdAndUserId(ctx context.Context, arg GetAllMe
 }
 
 const getAllMediaByUserId = `-- name: GetAllMediaByUserId :many
-SELECT media.id, media.entry_id, media.url
+SELECT media.entry_id, media.key
 FROM media
          JOIN travel_entry ON media.entry_id = travel_entry.id
          JOIN user_trip ON travel_entry.trip_id = user_trip.trip_id
@@ -155,7 +162,7 @@ func (q *Queries) GetAllMediaByUserId(ctx context.Context, userID string) ([]Med
 	items := []Medium{}
 	for rows.Next() {
 		var i Medium
-		if err := rows.Scan(&i.ID, &i.EntryID, &i.Url); err != nil {
+		if err := rows.Scan(&i.EntryID, &i.Key); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -169,34 +176,40 @@ func (q *Queries) GetAllMediaByUserId(ctx context.Context, userID string) ([]Med
 	return items, nil
 }
 
-const getMediaById = `-- name: GetMediaById :one
-SELECT id, entry_id, url
-FROM MEDIA
-WHERE id = $1
+const getMediaByKey = `-- name: GetMediaByKey :one
+SELECT entry_id, key
+FROM media
+WHERE entry_id = $1 AND key = $2
 `
 
-func (q *Queries) GetMediaById(ctx context.Context, id int64) (Medium, error) {
-	row := q.queryRow(ctx, q.getMediaByIdStmt, getMediaById, id)
+type GetMediaByKeyParams struct {
+	EntryID int64  `json:"entry_id"`
+	Key     string `json:"key"`
+}
+
+func (q *Queries) GetMediaByKey(ctx context.Context, arg GetMediaByKeyParams) (Medium, error) {
+	row := q.queryRow(ctx, q.getMediaByKeyStmt, getMediaByKey, arg.EntryID, arg.Key)
 	var i Medium
-	err := row.Scan(&i.ID, &i.EntryID, &i.Url)
+	err := row.Scan(&i.EntryID, &i.Key)
 	return i, err
 }
 
-const updateMediaById = `-- name: UpdateMediaById :one
+const updateMediaByKey = `-- name: UpdateMediaByKey :one
 UPDATE media
-SET url = $2
-WHERE id = $1
-    RETURNING id, entry_id, url
+SET key = $3
+WHERE entry_id = $1 AND key = $2
+RETURNING entry_id, key
 `
 
-type UpdateMediaByIdParams struct {
-	ID  int64  `json:"id"`
-	Url string `json:"url"`
+type UpdateMediaByKeyParams struct {
+	EntryID int64  `json:"entry_id"`
+	Key     string `json:"key"`
+	Key_2   string `json:"key_2"`
 }
 
-func (q *Queries) UpdateMediaById(ctx context.Context, arg UpdateMediaByIdParams) (Medium, error) {
-	row := q.queryRow(ctx, q.updateMediaByIdStmt, updateMediaById, arg.ID, arg.Url)
+func (q *Queries) UpdateMediaByKey(ctx context.Context, arg UpdateMediaByKeyParams) (Medium, error) {
+	row := q.queryRow(ctx, q.updateMediaByKeyStmt, updateMediaByKey, arg.EntryID, arg.Key, arg.Key_2)
 	var i Medium
-	err := row.Scan(&i.ID, &i.EntryID, &i.Url)
+	err := row.Scan(&i.EntryID, &i.Key)
 	return i, err
 }

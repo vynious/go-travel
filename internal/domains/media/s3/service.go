@@ -7,8 +7,9 @@ import (
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/vynious/go-travel/internal/domains/media"
+	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"os"
+	"strconv"
 )
 
 type S3Client struct {
@@ -30,8 +31,7 @@ func NewS3Client() (*S3Client, error) {
 	}, nil
 }
 
-func (client *S3Client) PutSignedMediaToBucket(ctx context.Context, fileInput media.FileInput) (*v4.PresignedHTTPRequest, error) {
-
+func (client *S3Client) PutSignedMediaToBucket(ctx context.Context, media *db.Medium) (*v4.PresignedHTTPRequest, error) {
 	bucketName := os.Getenv("AWS_BUCKET_TRAVEL_ENTRY")
 	if bucketName == "" {
 		return nil, fmt.Errorf("s3 bucket name not configured")
@@ -39,7 +39,7 @@ func (client *S3Client) PutSignedMediaToBucket(ctx context.Context, fileInput me
 
 	input := &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
-		Key:    aws.String(fileInput.Filename),
+		Key:    aws.String(generateS3Key(media.EntryID, media.Key)),
 	}
 	url, err := client.psClient.PresignPutObject(ctx, input, nil)
 	if err != nil {
@@ -48,7 +48,7 @@ func (client *S3Client) PutSignedMediaToBucket(ctx context.Context, fileInput me
 	return url, nil
 }
 
-func (client *S3Client) GetSignedMediaFromBucket(ctx context.Context, key string) (*v4.PresignedHTTPRequest, error) {
+func (client *S3Client) GetSignedMediaFromBucket(ctx context.Context, media *db.Medium) (*v4.PresignedHTTPRequest, error) {
 	bucketName := os.Getenv("AWS_BUCKET_TRAVEL_ENTRY")
 	if bucketName == "" {
 		return nil, fmt.Errorf("s3 bucket name not configured")
@@ -56,7 +56,7 @@ func (client *S3Client) GetSignedMediaFromBucket(ctx context.Context, key string
 
 	input := &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
-		Key:    aws.String(key),
+		Key:    aws.String(generateS3Key(media.EntryID, media.Key)),
 	}
 
 	url, err := client.psClient.PresignGetObject(ctx, input, nil)
@@ -67,6 +67,24 @@ func (client *S3Client) GetSignedMediaFromBucket(ctx context.Context, key string
 	return url, nil
 }
 
-func (client *S3Client) DeleteMediaFromBucket() {
+func (client *S3Client) DeleteMediaFromBucket(ctx context.Context, media *db.Medium) (*v4.PresignedHTTPRequest, error) {
+	bucketName := os.Getenv("AWS_BUCKET_TRAVEL_ENTRY")
+	if bucketName == "" {
+		return nil, fmt.Errorf("s3 bucket name not configured")
+	}
+	input := &s3.DeleteObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(generateS3Key(media.EntryID, media.Key)),
+	}
+	url, err := client.psClient.PresignDeleteObject(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get signed url: %w", err)
+	}
+	return url, nil
+}
 
+func generateS3Key(eid int64, key string) string {
+	strEID := strconv.FormatInt(eid, 10)
+	res := strEID + "_" + key
+	return res
 }

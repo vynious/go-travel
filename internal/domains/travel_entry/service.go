@@ -5,7 +5,6 @@ import (
 	"fmt"
 	repo "github.com/vynious/go-travel/internal/db"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
-	"strconv"
 	"time"
 )
 
@@ -95,10 +94,4 @@ func (s *TravelEntryService) DeleteTravelEntryById(ctx context.Context, eid int6
 	}
 	return entry, nil
 
-}
-
-func generateS3Key(eid int64, filename string) string {
-	strEID := strconv.FormatInt(eid, 10)
-	key := strEID + "_" + filename
-	return key
 }

@@ -1,8 +1,8 @@
 package travel_entry
 
 import (
-	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
+	"github.com/vynious/go-travel/internal/domains/media"
 )
 
 type NewTravelEntryRequest struct {
@@ -27,5 +27,5 @@ type UpdateTravelEntryRequest struct {
 
 type TravelEntryDetailWithMediaResponse struct {
 	TravelEntry db.TravelEntry
-	SignedUrls  []*v4.PresignedHTTPRequest
+	SignedMedia []*media.MediaResponse
 }
