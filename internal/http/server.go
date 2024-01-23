@@ -31,7 +31,10 @@ type App struct {
 
 func NewApp() (*App, error) {
 
-	dsn := "postgresql://shawntyw:shawntyw@localhost/godb?sslmode=disable"
+	dsn := os.Getenv("DB_DSN")
+	if dsn == "" {
+		return nil, fmt.Errorf("dsn not configured")
+	}
 	// Open the database
 	database, err := sql.Open("postgres", dsn)
 	if err != nil {
