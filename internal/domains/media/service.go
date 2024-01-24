@@ -125,6 +125,39 @@ func (s *MediaService) DeleteMediaById(ctx context.Context, eid int64, key strin
 	}, nil
 }
 
-func (s *MediaService) DeleteMediaByEntryId(ctx context.Context, eid int64) (*MediaResponse, error) {
+func (s *MediaService) DeleteMediaByEntryId(ctx context.Context, eid int64) ([]*MediaResponse, error) {
+	medias, err := s.repository.Queries.GetAllMediaByEntryId(ctx, eid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all media :%w", err)
+	}
+	result := make([]*MediaResponse, len(medias))
+	errCh := make(chan error, len(medias))
+	var wg sync.WaitGroup
 
+	for i, media := range medias {
+		wg.Add(1)
+		go func(m db.Medium, idx int) {
+			defer wg.Done()
+			url, err := s.s3Client.DeleteMediaFromBucket(ctx, &m)
+			if err != nil {
+				errCh <- fmt.Errorf("failed to  generate signed url: %w", err)
+				return
+			}
+			result[idx] = &MediaResponse{
+				Media:     m,
+				SignedUrl: url, // for get
+			}
+		}(media, i)
+	}
+	go func() {
+		wg.Wait()
+		close(errCh)
+	}()
+
+	for i := 0; i < len(medias); i++ {
+		if err := <-errCh; err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
 }

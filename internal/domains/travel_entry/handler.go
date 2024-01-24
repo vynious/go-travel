@@ -258,10 +258,15 @@ func (h *TravelEntryHandler) DeleteTravelEntry(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// todo: add delete media by entry_id
+	signedUrls, err := h.mediaService.DeleteMediaByEntryId(r.Context(), entry.ID)
+	if err != nil {
+		http.Error(w, "failed to get signed media urls for travel entry", http.StatusNotFound)
+		return
+	}
 
-	response := TravelEntryDetailResponse{
+	response := TravelEntryDetailWithMediaResponse{
 		TravelEntry: entry,
+		SignedMedia: signedUrls,
 	}
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
