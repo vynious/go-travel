@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"os"
@@ -19,7 +20,13 @@ type S3Client struct {
 
 func NewS3Client() (*S3Client, error) {
 	// Load the Shared AWS Configuration (~/.aws/config)
-	cfg, err := config.LoadDefaultConfig(context.TODO(), nil)
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(os.Getenv("AWS_REGION")),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
+			os.Getenv("AWS_ACCESS_KEY_ID"),
+			os.Getenv("AWS_SECRET_ACCESS_KEY"),
+			"")), // empty session token
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load s3 config :%w", err)
 	}

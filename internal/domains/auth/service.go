@@ -15,7 +15,7 @@ type FBClient struct {
 }
 
 func NewFirebaseClient() (*FBClient, error) {
-	opt := option.WithCredentialsFile("../firebase.json")
+	opt := option.WithCredentialsFile("firebase.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		return nil, fmt.Errorf("error initializing app: %w", err)
