@@ -32,6 +32,14 @@ func (s *ConnectionService) CreateConnection(ctx context.Context, a string, b st
 	return conn, nil
 }
 
+func (s *ConnectionService) GetUserConnections(ctx context.Context, userId string) ([]db.GetConnectionsByUserIdRow, error) {
+	conns, err := s.repository.Queries.GetConnectionsByUserId(ctx, userId)
+	if err != nil {
+		return []db.GetConnectionsByUserIdRow{}, fmt.Errorf("[s] failed to retreive user connections")
+	}
+	return conns, nil
+}
+
 func (s *ConnectionService) DeleteConnection(ctx context.Context, a string, b string) (db.Connection, error) {
 	params := db.DeleteConnectionByUserIdParams{
 		PartyA: a,
