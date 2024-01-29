@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/vynious/go-travel/internal/domains/connections"
 	"github.com/vynious/go-travel/internal/domains/travel_entry"
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
@@ -14,7 +15,8 @@ func InitRouter(
 	userHandler *user.UserHandler,
 	tripHandler *trip.TripHandler,
 	usertripHandler *user_trip.UserTripHandler,
-	travelEntryHandler *travel_entry.TravelEntryHandler) chi.Router {
+	travelEntryHandler *travel_entry.TravelEntryHandler,
+	connectionHandler *connections.ConnectionHandler) chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", func(writer http.ResponseWriter, request *http.Request) {
@@ -58,5 +60,10 @@ func InitRouter(
 		r.Delete("/{entryId}", travelEntryHandler.DeleteTravelEntry)
 	})
 
+	r.Route("/connection", func(r chi.Router) {
+		r.Post("/{partyA}/{partyB}", connectionHandler.MakeConnection)
+		r.Get("/{userId}", connectionHandler.ViewConnections)
+		r.Delete("/{userId}", connectionHandler.RemoveConnection)
+	})
 	return r
 }

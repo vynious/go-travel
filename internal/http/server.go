@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/vynious/go-travel/internal/db"
 	auth "github.com/vynious/go-travel/internal/domains/auth"
+	"github.com/vynious/go-travel/internal/domains/connections"
 	"github.com/vynious/go-travel/internal/domains/media"
 	"github.com/vynious/go-travel/internal/domains/media/s3"
 	"github.com/vynious/go-travel/internal/domains/travel_entry"
@@ -64,12 +65,16 @@ func NewApp() (*App, error) {
 	mediaService := media.NewMediaService(repo, s3Service)
 	travelEntryHandler := travel_entry.NewTravelEntryHandler(travelEntryService, mediaService)
 
+	connectionService := connections.NewConnectionService(repo)
+	connectionHandler := connections.NewConnectionHandler(connectionService)
+
 	app := &App{
 		router: InitRouter(
 			userHandler,
 			tripHandler,
 			usertripHandler,
-			travelEntryHandler),
+			travelEntryHandler,
+			connectionHandler),
 		rdb:            database,
 		config:         LoadConfig(),
 		firebaseClient: fireClient,

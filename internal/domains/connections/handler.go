@@ -17,8 +17,8 @@ func NewConnectionHandler(s *ConnectionService) *ConnectionHandler {
 }
 
 func (h *ConnectionHandler) MakeConnection(w http.ResponseWriter, r *http.Request) {
-	a := chi.URLParam(r, "a")
-	b := chi.URLParam(r, "b")
+	a := chi.URLParam(r, "partyA")
+	b := chi.URLParam(r, "partyB")
 
 	conn, err := h.CreateConnection(r.Context(), a, b)
 	if err != nil {
@@ -38,7 +38,7 @@ func (h *ConnectionHandler) MakeConnection(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (h *ConnectionHandler) ViewConnection(w http.ResponseWriter, r *http.Request) {
+func (h *ConnectionHandler) ViewConnections(w http.ResponseWriter, r *http.Request) {
 	userId := chi.URLParam(r, "userId")
 	conns, err := h.GetUserConnections(r.Context(), userId)
 	if err != nil {
