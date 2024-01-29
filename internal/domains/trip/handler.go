@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -117,7 +118,10 @@ func (h *TripHandler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) 
 		updated = true
 		trip, err := h.UpdateTripTitle(r.Context(), id, title)
 		if err != nil {
-			tx.Rollback()
+			if err := tx.Rollback(); err != nil {
+				log.Print("rollback error: %w", err)
+
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -129,7 +133,10 @@ func (h *TripHandler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) 
 		updated = true
 		trip, err := h.UpdateTripCountry(r.Context(), id, country)
 		if err != nil {
-			tx.Rollback()
+			if err := tx.Rollback(); err != nil {
+				log.Print("rollback error: %w", err)
+
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -141,7 +148,10 @@ func (h *TripHandler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) 
 		updated = true
 		trip, err := h.UpdateTripStartDate(r.Context(), id, startDate)
 		if err != nil {
-			tx.Rollback()
+			if err := tx.Rollback(); err != nil {
+				log.Print("rollback error: %w", err)
+
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -153,7 +163,10 @@ func (h *TripHandler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) 
 		updated = true
 		trip, err := h.UpdateTripEndDate(r.Context(), id, endDate)
 		if err != nil {
-			tx.Rollback()
+			if err := tx.Rollback(); err != nil {
+				log.Print("rollback error: %w", err)
+
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -167,7 +180,10 @@ func (h *TripHandler) ChangeTripDetails(w http.ResponseWriter, r *http.Request) 
 
 		}
 	} else {
-		tx.Rollback()
+		if err := tx.Rollback(); err != nil {
+			log.Print("rollback error: %w", err)
+
+		}
 		http.Error(w, "no updates to perform", http.StatusBadRequest)
 		return
 	}
