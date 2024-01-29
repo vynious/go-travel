@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"github.com/vynious/go-travel/internal/domains/media"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -203,7 +204,10 @@ func (h *TravelEntryHandler) UpdateTravelEntry(w http.ResponseWriter, r *http.Re
 		updated = true
 		entry, err := h.UpdateTravelEntryLocationById(r.Context(), id, location)
 		if err != nil {
-			tx.Rollback()
+			if err := tx.Rollback(); err != nil {
+				log.Print("rollback error: %w", err)
+
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -215,7 +219,9 @@ func (h *TravelEntryHandler) UpdateTravelEntry(w http.ResponseWriter, r *http.Re
 		updated = true
 		entry, err := h.UpdateTravelEntryDescriptionById(r.Context(), id, description)
 		if err != nil {
-			tx.Rollback()
+			if err := tx.Rollback(); err != nil {
+				log.Print("rollback error: %w", err)
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -229,7 +235,9 @@ func (h *TravelEntryHandler) UpdateTravelEntry(w http.ResponseWriter, r *http.Re
 
 		}
 	} else {
-		tx.Rollback()
+		if err := tx.Rollback(); err != nil {
+			log.Print("rollback error: %w", err)
+		}
 		http.Error(w, "no updates to perform", http.StatusBadRequest)
 		return
 	}
