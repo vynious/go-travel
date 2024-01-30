@@ -2,12 +2,16 @@ package user_trip
 
 import db "github.com/vynious/go-travel/internal/db/sqlc"
 
-type AddUserTripRequest struct {
-	UserId string
+type AddUsersTripRequest struct {
+	UserIds []string
 }
 
 type UserTripDetailResponse struct {
 	UserTrip db.UserTrip
+}
+
+type MultipleUserTripDetailResponse struct {
+	UserTrips []db.UserTrip
 }
 
 type UserTripsDetailsResponse struct {

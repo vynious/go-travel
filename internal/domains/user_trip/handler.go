@@ -3,8 +3,10 @@ package user_trip
 import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
+	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 type UserTripHandler struct {
@@ -25,23 +27,38 @@ func (h *UserTripHandler) AddUserToTrip(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var userReq AddUserTripRequest
+	var userReq AddUsersTripRequest
 	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	uid := userReq.UserId
+	uids := userReq.UserIds
 
-	ut, err := h.CreateNewUserTrip(r.Context(), uid, tid)
-	if err != nil {
-		http.Error(w, "failed to create usertrip", http.StatusInternalServerError)
-		return
+	var wg sync.WaitGroup
+	result := make([]db.UserTrip, len(uids))
+	errCh := make(chan error, len(uids))
+
+	for i, uid := range uids {
+		wg.Add(1)
+		go func(idx int, userId string) {
+			ut, err := h.CreateNewUserTrip(r.Context(), userId, tid)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			result[idx] = ut
+		}(i, uid)
 	}
 
+	go func() {
+		wg.Wait()
+		close(errCh)
+	}()
+
 	w.WriteHeader(http.StatusCreated)
-	response := UserTripDetailResponse{
-		UserTrip: ut,
+	response := MultipleUserTripDetailResponse{
+		UserTrips: result,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
