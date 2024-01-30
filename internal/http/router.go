@@ -51,7 +51,7 @@ func InitRouter(
 	})
 
 	r.Route("/trip-assignments", func(r chi.Router) {
-		r.Post("/{tripId}/users", usertripHandler.AddUserToTrip)
+		r.Post("/{tripId}/users", usertripHandler.AddUsersToTrip)
 		r.Delete("/{tripId}/users/{userId}", usertripHandler.DeleteUserFromTripId)
 		r.Get("/{tripId}/users", usertripHandler.GetAllUsersOnTripId)
 		r.Get("/users/{userId}", usertripHandler.GetAllTripsForUserId)

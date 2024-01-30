@@ -19,7 +19,7 @@ func NewUserTripHandler(s *UserTripService) *UserTripHandler {
 	}
 }
 
-func (h *UserTripHandler) AddUserToTrip(w http.ResponseWriter, r *http.Request) {
+func (h *UserTripHandler) AddUsersToTrip(w http.ResponseWriter, r *http.Request) {
 	strTID := chi.URLParam(r, "tripId")
 	tid, err := strconv.ParseInt(strTID, 10, 64)
 	if err != nil {
@@ -33,8 +33,7 @@ func (h *UserTripHandler) AddUserToTrip(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	uids := userReq.UserIds
-
+	uids := userReq.Users
 	var wg sync.WaitGroup
 	result := make([]db.UserTrip, len(uids))
 	errCh := make(chan error, len(uids))
@@ -42,6 +41,7 @@ func (h *UserTripHandler) AddUserToTrip(w http.ResponseWriter, r *http.Request) 
 	for i, uid := range uids {
 		wg.Add(1)
 		go func(idx int, userId string) {
+			defer wg.Done()
 			ut, err := h.CreateNewUserTrip(r.Context(), userId, tid)
 			if err != nil {
 				errCh <- err
@@ -55,6 +55,13 @@ func (h *UserTripHandler) AddUserToTrip(w http.ResponseWriter, r *http.Request) 
 		wg.Wait()
 		close(errCh)
 	}()
+
+	for err := range errCh {
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
 
 	w.WriteHeader(http.StatusCreated)
 	response := MultipleUserTripDetailResponse{
