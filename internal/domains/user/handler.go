@@ -8,6 +8,7 @@ import (
 	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"github.com/vynious/go-travel/internal/domains/auth"
 	"github.com/vynious/go-travel/pkg"
+	"log"
 	"net/http"
 )
 
@@ -206,7 +207,7 @@ func (h *UserHandler) ChangeUserProfilePicture(w http.ResponseWriter, r *http.Re
 
 func (h *UserHandler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "userId")
-
+	// todo: change user detail never update firebase
 	var userReq UpdateUserDetailRequest
 	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -227,7 +228,9 @@ func (h *UserHandler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) 
 		updated = true
 		user, err := h.UpdateUserNameById(r.Context(), id, name)
 		if err != nil {
-			tx.Rollback()
+			if err := tx.Rollback(); err != nil {
+				log.Print("rollback error: %w", err)
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -239,24 +242,12 @@ func (h *UserHandler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) 
 		updated = true
 		user, err := h.UpdateUserUsernameById(r.Context(), id, username)
 		if err != nil {
-			tx.Rollback()
+			if err := tx.Rollback(); err != nil {
+				log.Print("rollback error: %w", err)
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		updatedUser = user
-	}
-
-	if userReq.Email != nil {
-		email := *userReq.Email
-		updated = true
-		user, err := h.UpdateUserEmailById(r.Context(), id, email)
-		_, err = h.firebaseClient.UpdateUserEmail(r.Context(), id, email)
-		if err != nil {
-			tx.Rollback()
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
 		updatedUser = user
 	}
 
@@ -264,10 +255,12 @@ func (h *UserHandler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) 
 		if err := tx.Commit(); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
-
 		}
 	} else {
-		tx.Rollback()
+		if err := tx.Rollback(); err != nil {
+			log.Print("rollback error: %w", err)
+
+		}
 		http.Error(w, "no updates to perform", http.StatusBadRequest)
 		return
 	}

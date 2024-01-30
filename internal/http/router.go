@@ -3,12 +3,14 @@ package http
 import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/sirupsen/logrus"
 	"github.com/vynious/go-travel/internal/domains/connections"
 	"github.com/vynious/go-travel/internal/domains/travel_entry"
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
 	"github.com/vynious/go-travel/internal/domains/user_trip"
 	"net/http"
+	"time"
 )
 
 func InitRouter(
@@ -19,8 +21,12 @@ func InitRouter(
 	connectionHandler *connections.ConnectionHandler) chi.Router {
 	r := chi.NewRouter()
 
+	r.Use(LogRequest)
 	r.Get("/", func(writer http.ResponseWriter, request *http.Request) {
-		fmt.Fprintln(writer, "API working!")
+		_, err := fmt.Fprintln(writer, "API working!")
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
+		}
 		writer.WriteHeader(http.StatusOK)
 
 	})
@@ -66,4 +72,18 @@ func InitRouter(
 		r.Delete("/{userId}", connectionHandler.RemoveConnection)
 	})
 	return r
+}
+
+func LogRequest(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		h.ServeHTTP(w, r)
+
+		logrus.WithFields(logrus.Fields{
+			"method": r.Method,
+			"path":   r.URL.Path,
+			"time":   time.Since(start),
+		}).Info("request handled")
+	})
 }
