@@ -57,6 +57,7 @@ func InitRouter(
 		r.Get("/users/{userId}", usertripHandler.GetAllTripsForUserId)
 	})
 
+	// todo missing update the media for the travel entry
 	r.Route("/travel-entries", func(r chi.Router) {
 		r.Post("/", travelEntryHandler.EnterTravelEntry)
 		r.Get("/{entryId}", travelEntryHandler.ViewTravelEntry)
