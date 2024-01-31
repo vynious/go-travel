@@ -301,7 +301,7 @@ A social media and travel diary application, where users get to record their tra
 
 ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
 
-## End-point: view connections Copy
+## End-point: delete connection
 ### Method: DELETE
 >```
 >http://localhost:3000/connection/HtAIvJsaVDPrtcvGgBrMFOEIHpy2?targetId=63IVnt0CoSdLQ1m7QxMG9yrYVOa2
