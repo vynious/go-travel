@@ -1,4 +1,3 @@
-```markdown
 # Travel Social Diary API Documentation
 
 ## Overview
