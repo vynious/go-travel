@@ -1,0 +1,19 @@
+/* NavBar.module.css */
+.navBar {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.link {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+  transition: color 0.3s ease-in-out;
+}
+
+.link:hover {
+  color: #007acc; /* Change hover color as needed */
+}

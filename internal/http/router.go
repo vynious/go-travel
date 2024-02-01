@@ -3,7 +3,14 @@ package http
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
+
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/sirupsen/logrus"
 	auth "github.com/vynious/go-travel/internal/domains/auth"
 	"github.com/vynious/go-travel/internal/domains/connections"
@@ -11,9 +18,6 @@ import (
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
 	"github.com/vynious/go-travel/internal/domains/user_trip"
-	"net/http"
-	"strings"
-	"time"
 )
 
 type AppRouter struct {
@@ -45,8 +49,18 @@ func (ar *AppRouter) setupRoutes(
 	travelEntryHandler *travel_entry.TravelEntryHandler,
 	connectionHandler *connections.ConnectionHandler,
 ) {
+
+	ar.router.Use(cors.Handler(cors.Options{
+    AllowedOrigins:   []string{"https://*", "http://*"},
+    AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+    AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+    ExposedHeaders:   []string{"Link"},
+    AllowCredentials: false,
+    MaxAge:           300, // Maximum value not ignored by any of major browsers
+  }))
+
 	ar.router.Use(ar.LogRequest)
-	ar.router.Use(ar.AuthenticateRequest)
+	// ar.router.Use(ar.AuthenticateRequest)
 	ar.router.Get("/", func(writer http.ResponseWriter, request *http.Request) {
 		_, err := fmt.Fprintln(writer, "API working!")
 		if err != nil {
@@ -131,7 +145,8 @@ func (ar *AppRouter) AuthenticateRequest(h http.Handler) http.Handler {
 			http.Error(w, "Invalid ID token", http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), "uid", token.UID)
+		key := "uid"
+		ctx := context.WithValue(r.Context(), key, token.UID)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
