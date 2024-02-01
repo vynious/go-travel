@@ -1,28 +1,61 @@
 package http
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
+	auth "github.com/vynious/go-travel/internal/domains/auth"
 	"github.com/vynious/go-travel/internal/domains/connections"
 	"github.com/vynious/go-travel/internal/domains/travel_entry"
 	"github.com/vynious/go-travel/internal/domains/trip"
 	"github.com/vynious/go-travel/internal/domains/user"
 	"github.com/vynious/go-travel/internal/domains/user_trip"
 	"net/http"
+	"strings"
 	"time"
 )
 
-func InitRouter(
+type AppRouter struct {
+	router         chi.Router
+	firebaseClient *auth.FBClient
+}
+
+func NewAppRouter(
 	userHandler *user.UserHandler,
 	tripHandler *trip.TripHandler,
 	usertripHandler *user_trip.UserTripHandler,
 	travelEntryHandler *travel_entry.TravelEntryHandler,
-	connectionHandler *connections.ConnectionHandler) chi.Router {
+	connectionHandler *connections.ConnectionHandler,
+	fbClient *auth.FBClient) *AppRouter {
 	r := chi.NewRouter()
 
-	r.Use(LogRequest)
-	r.Get("/", func(writer http.ResponseWriter, request *http.Request) {
+	ar := &AppRouter{
+		router:         r,
+		firebaseClient: fbClient,
+	}
+	ar.setupRoutes(userHandler, tripHandler, usertripHandler, travelEntryHandler, connectionHandler)
+	return ar
+}
+
+func (ar *AppRouter) setupRoutes(
+	userHandler *user.UserHandler,
+	tripHandler *trip.TripHandler,
+	usertripHandler *user_trip.UserTripHandler,
+	travelEntryHandler *travel_entry.TravelEntryHandler,
+	connectionHandler *connections.ConnectionHandler,
+) {
+	ar.router.Use(ar.LogRequest)
+	ar.router.Use(ar.AuthenticateRequest)
+	ar.router.Get("/", func(writer http.ResponseWriter, request *http.Request) {
+		_, err := fmt.Fprintln(writer, "API working!")
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
+	ar.router.Get("/", func(writer http.ResponseWriter, request *http.Request) {
 		_, err := fmt.Fprintln(writer, "API working!")
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
@@ -31,7 +64,7 @@ func InitRouter(
 
 	})
 
-	r.Route("/users", func(r chi.Router) {
+	ar.router.Route("/users", func(r chi.Router) {
 		r.Post("/", userHandler.RegisterUser)
 		r.Post("/token", userHandler.GenerateToken)
 		r.Get("/{userId}", userHandler.ViewUserDetails)
@@ -42,7 +75,7 @@ func InitRouter(
 		r.Delete("/{userId}", userHandler.DeleteAccount)
 	})
 
-	r.Route("/trips", func(r chi.Router) {
+	ar.router.Route("/trips", func(r chi.Router) {
 		r.Post("/", tripHandler.StartTrip)
 		r.Get("/{tripId}", tripHandler.ViewTripDetails)
 		r.Get("/", tripHandler.ViewAllTrips)
@@ -50,7 +83,7 @@ func InitRouter(
 		r.Delete("/{tripId}", tripHandler.DeleteTrip)
 	})
 
-	r.Route("/trip-assignments", func(r chi.Router) {
+	ar.router.Route("/trip-assignments", func(r chi.Router) {
 		r.Post("/{tripId}/users", usertripHandler.AddUsersToTrip)
 		r.Delete("/{tripId}/users/{userId}", usertripHandler.DeleteUserFromTripId)
 		r.Get("/{tripId}/users", usertripHandler.GetAllUsersOnTripId)
@@ -58,7 +91,7 @@ func InitRouter(
 	})
 
 	// todo missing update the media for the travel entry
-	r.Route("/travel-entries", func(r chi.Router) {
+	ar.router.Route("/travel-entries", func(r chi.Router) {
 		r.Post("/", travelEntryHandler.EnterTravelEntry)
 		r.Get("/{entryId}", travelEntryHandler.ViewTravelEntry)
 		r.Get("/trips/{tripId}", travelEntryHandler.ViewTravelEntriesUnderTrip)
@@ -67,15 +100,15 @@ func InitRouter(
 		r.Delete("/{entryId}", travelEntryHandler.DeleteTravelEntry)
 	})
 
-	r.Route("/connection", func(r chi.Router) {
+	ar.router.Route("/connection", func(r chi.Router) {
 		r.Post("/{partyA}/{partyB}", connectionHandler.MakeConnection)
 		r.Get("/{userId}", connectionHandler.ViewConnections)
 		r.Delete("/{userId}", connectionHandler.RemoveConnection)
 	})
-	return r
+
 }
 
-func LogRequest(h http.Handler) http.Handler {
+func (ar *AppRouter) LogRequest(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -86,5 +119,19 @@ func LogRequest(h http.Handler) http.Handler {
 			"path":   r.URL.Path,
 			"time":   time.Since(start),
 		}).Info("request handled")
+	})
+}
+
+func (ar *AppRouter) AuthenticateRequest(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authToken := r.Header.Get("authorisation")
+		authToken = strings.TrimPrefix(authToken, "Bearer ")
+		token, err := ar.firebaseClient.VerifyToken(r.Context(), authToken)
+		if err != nil {
+			http.Error(w, "Invalid ID token", http.StatusUnauthorized)
+			return
+		}
+		ctx := context.WithValue(r.Context(), "uid", token.UID)
+		h.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

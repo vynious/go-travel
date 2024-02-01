@@ -97,3 +97,11 @@ func (client *FBClient) CreateCustomToken(ctx context.Context, uid string) (stri
 	}
 	return token, nil
 }
+
+func (client *FBClient) VerifyToken(ctx context.Context, idToken string) (*auth.Token, error) {
+	token, err := client.fbClient.VerifyIDToken(ctx, idToken)
+	if err != nil {
+		return nil, fmt.Errorf("error verifying ID token: %v\n", err)
+	}
+	return token, nil
+}

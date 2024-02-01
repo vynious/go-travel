@@ -108,6 +108,10 @@ func (h *UserHandler) GenerateToken(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *UserHandler) VerifyToken(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func (h *UserHandler) ViewUserDetails(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "userId")
 
@@ -277,7 +281,6 @@ func (h *UserHandler) ChangeUserDetails(w http.ResponseWriter, r *http.Request) 
 
 func (h *UserHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "userId")
-
 	user, err := h.DeleteUserById(r.Context(), id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

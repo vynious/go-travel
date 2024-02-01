@@ -68,16 +68,11 @@ func NewApp() (*App, error) {
 	connectionService := connections.NewConnectionService(repo)
 	connectionHandler := connections.NewConnectionHandler(connectionService)
 
+	appRouter := NewAppRouter(userHandler, tripHandler, usertripHandler, travelEntryHandler, connectionHandler, fireClient)
 	app := &App{
-		router: InitRouter(
-			userHandler,
-			tripHandler,
-			usertripHandler,
-			travelEntryHandler,
-			connectionHandler),
-		rdb:            database,
-		config:         LoadConfig(),
-		firebaseClient: fireClient,
+		router: appRouter.router,
+		rdb:    database,
+		config: LoadConfig(),
 	}
 
 	return app, nil
