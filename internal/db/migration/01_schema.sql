@@ -25,7 +25,7 @@ CREATE TABLE connections (
                              connected_date TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE user_trip (
+CREATE TABLE user_p (
                            trip_id BIGSERIAL NOT NULL,
                            user_id VARCHAR(255) NOT NULL,
                            PRIMARY KEY (trip_id, user_id),

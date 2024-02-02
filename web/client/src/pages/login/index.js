@@ -1,48 +1,38 @@
 import React, { useState } from 'react';
 import firebaseApp from '../../firebase/firebaseConfig';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import {Link, navigate} from 'gatsby'
+import { Link, navigate } from 'gatsby'
+import { useUser } from '../../context/UserContext';
+
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { signIn } = useUser();
+
+
 
     const validateInputs = () => {
         if (!email || !password) {
             setError('Please enter both email and password.');
             return false;
         }
-        // Optional: Add more specific validations (e.g., email format, password length) here
         return true;
     };
 
     const handleLogin = async (e) => {
         e.preventDefault();
         if (!validateInputs()) {
-            return; // Stop the login process if validation fails
+            return;
         }
         setError('');
-        setIsSubmitting(true);
         try {
-            const auth = getAuth(firebaseApp);
-            await signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    userCredential.user.getIdToken().then((idToken) => {
-                        localStorage.setItem('userToken', idToken);
-                        navigate('/home'); // Navigate on successful login
-                    });
-                })
-                .catch((error) => {
-                    setError(error.message);
-                    console.error(error);
-                });
+            await signIn(email, password);
+            navigate('/home'); 
         } catch (error) {
-            console.log(error.message);
+            console.error(error);
             setError(error.message);
-        } finally {
-            setIsSubmitting(false);
         }
     };
 

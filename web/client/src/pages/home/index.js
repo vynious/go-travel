@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { Link, navigate } from "gatsby";
-import firebaseApp from "../../firebase/firebaseConfig";
-import ASidebar from "../components/ASidebar";
+import React, { useEffect } from 'react';
+import { navigate } from 'gatsby';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import firebaseApp from '../../firebase/firebaseConfig';
+import { useUser } from '../../context/UserContext';
+import ASidebar from '../components/ASidebar'; // Ensure this path is correct
 
 const Home = () => {
-    const [user, setUser] = useState(null);
+    const { user, setUser } = useUser();
 
     useEffect(() => {
         const auth = getAuth(firebaseApp);
         onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
                 const token = await firebaseUser.getIdToken();
-
                 fetch(`${process.env.GATSBY_BACKEND_URL}/users/${firebaseUser.uid}`, {
                     method: 'GET',
                     headers: {
@@ -27,28 +27,25 @@ const Home = () => {
                         return response.json();
                     })
                     .then(data => {
-                        console.log(data);
-                        setUser(data.User);
+                        console.log(data.User);
+                        setUser(data.User); // Make sure the data structure matches your context expectation
                     })
                     .catch(error => {
                         console.error('Error fetching user data:', error);
                         setUser(null);
                     });
             } else {
-                // User is signed out
                 setUser(null);
-                navigate("/login")
+                navigate("/login");
             }
         });
-    }, []);
-
+    }, [setUser]); // Adding setUser as a dependency is good practice to ensure useEffect has access to the latest setUser function
 
     return (
-        <div>
-            <ASidebar user={user} />
-        </div>
-    )
+        <ASidebar user={user} />
+    );
 
-}
+    // Now `user` is correctly passed to ASidebar
+};
 
 export default Home;
