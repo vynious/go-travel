@@ -97,6 +97,6 @@ func (client *S3Client) DeleteMediaFromBucket(ctx context.Context, media *db.Med
 
 func generateS3Key(eid int64, key string) string {
 	strEID := strconv.FormatInt(eid, 10)
-	res := strEID + "_" + key
+	res := "travel_entry_" + strEID + "_" + key
 	return res
 }
