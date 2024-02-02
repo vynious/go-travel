@@ -7,19 +7,42 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const validateInputs = () => {
+        if (!email || !password) {
+            setError('Please enter both email and password.');
+            return false;
+        }
+        // Optional: Add more specific validations (e.g., email format, password length) here
+        return true;
+    };
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        if (!validateInputs()) {
+            return; // Stop the login process if validation fails
+        }
         setError('');
+        setIsSubmitting(true);
         try {
             const auth = getAuth(firebaseApp);
-            await signInWithEmailAndPassword(auth, email, password);
-            // todo: Handle successful login here
-            // Redirect or set token in header as needed
-            navigate('/home');
+            await signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    userCredential.user.getIdToken().then((idToken) => {
+                        localStorage.setItem('userToken', idToken);
+                        navigate('/home'); // Navigate on successful login
+                    });
+                })
+                .catch((error) => {
+                    setError(error.message);
+                    console.error(error);
+                });
         } catch (error) {
             console.log(error.message);
             setError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 

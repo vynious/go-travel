@@ -3,7 +3,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import 'firebase/auth';
 
 
-// TODO: Add SDKs for Firebase products that you want to use
+
 
 
 const firebaseConfig = {
@@ -20,6 +20,6 @@ const firebaseConfig = {
 let firebaseApp;
 if (!getApps().length) {
     firebaseApp = initializeApp(firebaseConfig);
-} 
+}
 
 export default firebaseApp;
