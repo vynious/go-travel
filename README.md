@@ -1,25 +1,32 @@
 # Travel Social Diary API Documentation
 
+![Landing page](img/client_landing.png)
+
+
 ## Overview
 Travel Social Diary is a social media and travel diary application where users can record their travels in a diary format. Followers can comment on and like their entries.
 
+There are 4 main functionalities:
+- User account creation
+- Personal travel diary 
+- Group (Collaborative) travel diary
+- Connect with your friends and share your travel blog
+
+
 ## Table of Contents
+- [Backend Architecture](#backend-architecture)
 - [User Endpoints](#user-endpoints)
 - [Trip Endpoints](#trip-endpoints)
 - [Travel Entry Endpoints](#travel-entry-endpoints)
 - [Connection Endpoints](#connection-endpoints)
 
-## User Endpoints
+## Backend Architecture
 
-### Login User (Generate Token)
-- **Method:** POST
-- **Endpoint:** `/users/token`
-- **Body:**
-  ```json
-  {
-      "email": "shawn@gmail.com"
-  }
-  ```
+### User authentication
+
+![User auth flow](img/user_auth_flow.png)
+
+## User Endpoints
 
 ### Register User
 - **Method:** POST
