@@ -7,12 +7,13 @@ export default function Connections() {
     const [data, setData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     useEffect(() => {
 
         const fetchData = async () => {
             try {
-                const response = await fetch("http://localhost:3000/users");
+                const response = await fetch(`${backendUrl}/users`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
