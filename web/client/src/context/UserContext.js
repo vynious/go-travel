@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { navigate } from 'gatsby';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import firebaseApp from '../firebase/firebaseConfig';
+
 const UserContext = createContext();
 
 export const useUser = () => useContext(UserContext);
@@ -35,7 +35,6 @@ export const UserProvider = ({ children }) => {
             } else {
                 setUser(null);
                 setIsLoading(false);
-                navigate('/login');
             }
         });
 
@@ -47,7 +46,7 @@ export const UserProvider = ({ children }) => {
         const auth = getAuth(firebaseApp);
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            return user
+            return user;
         } catch (error) {
             throw error; // calling component handle the error
         }
@@ -58,9 +57,22 @@ export const UserProvider = ({ children }) => {
         auth.signOut().then(() => setUser(null));
     };
 
-    return (
-        <UserContext.Provider value={{ user, signIn, setUser, signOut, isLoading }}>
-            {!isLoading && children}
-        </UserContext.Provider>
-    );
+    // Check the current route and allow unrestricted access to certain pages
+    const isUnrestrictedRoute = () => {
+        const currentPath = window.location.pathname;
+        // Define an array of unrestricted routes
+        const unrestrictedRoutes = ['/'];
+
+        return unrestrictedRoutes.includes(currentPath);
+    };
+
+    if (!isLoading || isUnrestrictedRoute()) {
+        return (
+            <UserContext.Provider value={{ user, signIn, setUser, signOut, isLoading }}>
+                {children}
+            </UserContext.Provider>
+        );
+    } else {
+        return <div>Loading...</div>;
+    }
 };
