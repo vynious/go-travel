@@ -9,19 +9,32 @@ const Register = () => {
     console.log("Backend URL:", process.env.GATSBY_BACKEND_URL);
 
     const [formData, setFormData] = useState({
-        name: '',
-        username: '',
-        email: '',
+        user: {
+            name: '',
+            username: '',
+            email: '',
+        },
         password: '',
     });
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+        // Check if the changed input belongs to the user object
+        if (['name', 'username', 'email'].includes(name)) {
+            setFormData({
+                ...formData,
+                user: {
+                    ...formData.user,
+                    [name]: value,
+                },
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value,
+            });
+        }
     };
 
     const handleSubmit = async (e) => {

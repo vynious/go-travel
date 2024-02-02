@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	db "github.com/vynious/go-travel/internal/db/sqlc"
 	"os"
 	"strconv"
@@ -20,11 +21,12 @@ type S3Client struct {
 
 func NewS3Client() (*S3Client, error) {
 	// Load the Shared AWS Configuration (~/.aws/config)
+
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion(os.Getenv("AWS_REGION")),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
-			os.Getenv("AWS_ACCESS_KEY_ID"),
-			os.Getenv("AWS_SECRET_ACCESS_KEY"),
+			os.Getenv("AWS_ACCESS_KEY"),
+			os.Getenv("AWS_SECRET_KEY"),
 			"")), // empty session token
 	)
 	if err != nil {
@@ -39,16 +41,18 @@ func NewS3Client() (*S3Client, error) {
 }
 
 func (client *S3Client) PutSignedMediaToBucket(ctx context.Context, media *db.Medium) (*v4.PresignedHTTPRequest, error) {
+
 	bucketName := os.Getenv("AWS_BUCKET_TRAVEL_ENTRY")
 	if bucketName == "" {
 		return nil, fmt.Errorf("s3 bucket name not configured")
 	}
-
 	input := &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(generateS3Key(media.EntryID, media.Key)),
+		ACL:    types.ObjectCannedACL("public-read"),
 	}
-	url, err := client.psClient.PresignPutObject(ctx, input, nil)
+
+	url, err := client.psClient.PresignPutObject(ctx, input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get signed url: %w", err)
 	}
@@ -66,7 +70,7 @@ func (client *S3Client) GetSignedMediaFromBucket(ctx context.Context, media *db.
 		Key:    aws.String(generateS3Key(media.EntryID, media.Key)),
 	}
 
-	url, err := client.psClient.PresignGetObject(ctx, input, nil)
+	url, err := client.psClient.PresignGetObject(ctx, input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get signed url: %w", err)
 	}
@@ -76,6 +80,7 @@ func (client *S3Client) GetSignedMediaFromBucket(ctx context.Context, media *db.
 
 func (client *S3Client) DeleteMediaFromBucket(ctx context.Context, media *db.Medium) (*v4.PresignedHTTPRequest, error) {
 	bucketName := os.Getenv("AWS_BUCKET_TRAVEL_ENTRY")
+
 	if bucketName == "" {
 		return nil, fmt.Errorf("s3 bucket name not configured")
 	}

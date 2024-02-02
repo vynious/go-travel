@@ -52,9 +52,7 @@ func (h *TravelEntryHandler) EnterTravelEntry(w http.ResponseWriter, r *http.Req
 	}
 
 	files := r.MultipartForm.File["media"]
-
 	var wg sync.WaitGroup
-
 	result := make([]*media.MediaResponse, len(files))
 	errCh := make(chan error, len(files))
 
@@ -63,7 +61,8 @@ func (h *TravelEntryHandler) EnterTravelEntry(w http.ResponseWriter, r *http.Req
 		wg.Add(1)
 		go func(fh *multipart.FileHeader, idx int) {
 			defer wg.Done()
-			response, err := h.mediaService.CreateNewMedia(r.Context(), entry.ID, fh.Filename)
+
+			response, err := h.mediaService.CreateNewMedia(r.Context(), entry.ID, strconv.Itoa(idx))
 			if err != nil {
 				errCh <- fmt.Errorf(
 					"failed to create new media :%w", err)
