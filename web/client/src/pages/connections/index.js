@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "../components/Navbar";
+import { useUser } from '../../context/UserContext';
 
 
 export default function Connections() {
-
+    const { user } = useUser()
     const [data, setData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     useEffect(() => {
 
         const fetchData = async () => {
             try {
-                const response = await fetch(`${backendUrl}/users`);
+                const response = await fetch(`${process.env.GATSBY_BACKEND_URL}/connection/${user.id}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
                 setData(data);
-                setIsLoading(false); 
+                console.log(data.Connections);
+                setIsLoading(false);
             } catch (error) {
                 setError(error.message);
                 setIsLoading(false);
@@ -52,6 +53,5 @@ export default function Connections() {
                 ))}
             </div>
         </section>
-       
     );
 }

@@ -1,8 +1,11 @@
 // Sidebar.js
 import React from 'react';
 import { Link } from "gatsby";
+import {useUser} from "../../context/UserContext"
 
 const Sidebar = ({ user }) => {
+    const {signOut} = useUser()
+
     return (
         <aside className="flex flex-col w-64 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
             <a href="#">
@@ -37,7 +40,7 @@ const Sidebar = ({ user }) => {
                         <span className="mx-2 text-sm font-medium">Trips</span>
                     </a>
 
-                    <a className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700" href="#">
+                    <a className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700" href="/connections">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
                         </svg>
@@ -75,11 +78,11 @@ const Sidebar = ({ user }) => {
                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{user.name || "User Name"}</span>
                                 </Link>
 
-                                <Link to="/logout" className="text-gray-500 transition-colors duration-200 rotate-180 dark:text-gray-400 rtl:rotate-0 hover:text-blue-500 dark:hover:text-blue-400">
+                                <button onClick={signOut} className="text-gray-500 transition-colors duration-200 rotate-180 dark:text-gray-400 rtl:rotate-0 hover:text-blue-500 dark:hover:text-blue-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                                     </svg>
-                                </Link>
+                                </button>
                             </div>
                         ) : (
                             <Link to="/login" className="text-sm font-medium text-gray-700 dark:text-gray-200">
