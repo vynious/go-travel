@@ -28,8 +28,12 @@ const Login = () => {
         }
         setError('');
         try {
-            await signIn(email, password);
-            navigate('/home'); 
+            const result = await signIn(email, password);
+            if (!result) {
+                navigate('/login')
+            } else {
+                navigate('/home');
+            }
         } catch (error) {
             console.error(error);
             setError(error.message);

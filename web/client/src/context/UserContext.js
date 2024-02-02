@@ -47,6 +47,7 @@ export const UserProvider = ({ children }) => {
         const auth = getAuth(firebaseApp);
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            return user
         } catch (error) {
             throw error; // Let the calling component handle the error
         }

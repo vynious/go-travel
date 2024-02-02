@@ -60,7 +60,7 @@ const Trips = () => {
                         ))}
                     </div>
                 </div>
-                <Footer />
+                {/* <Footer /> */}
             </section>
         </div>
     );
