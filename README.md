@@ -1,4 +1,4 @@
-# Travel Social Diary API Documentation
+# Travel Social Diary Documentation
 
 ![Landing page](img/client_landing.png)
 
