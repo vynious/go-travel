@@ -24,7 +24,7 @@ export const UserProvider = ({ children }) => {
                     })
                         .then(response => response.json())
                         .then(data => {
-                            setUser(data.User); // Assuming your backend response has a User object
+                            setUser(data.User); // if backend response has a User object
                             setIsLoading(false);
                         })
                         .catch(error => {
@@ -49,7 +49,7 @@ export const UserProvider = ({ children }) => {
             await signInWithEmailAndPassword(auth, email, password);
             return user
         } catch (error) {
-            throw error; // Let the calling component handle the error
+            throw error; // calling component handle the error
         }
     };
 

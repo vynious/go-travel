@@ -3,7 +3,7 @@ import { navigate } from 'gatsby';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import firebaseApp from '../../firebase/firebaseConfig';
 import { useUser } from '../../context/UserContext';
-import ASidebar from '../components/ASidebar'; // Ensure this path is correct
+import ASidebar from '../components/ASidebar'; 
 
 const Home = () => {
     const { user, setUser } = useUser();
@@ -28,7 +28,7 @@ const Home = () => {
                     })
                     .then(data => {
                         console.log(data.User);
-                        setUser(data.User); // Make sure the data structure matches your context expectation
+                        setUser(data.User);
                     })
                     .catch(error => {
                         console.error('Error fetching user data:', error);
@@ -39,13 +39,12 @@ const Home = () => {
                 navigate("/login");
             }
         });
-    }, [setUser]); // Adding setUser as a dependency is good practice to ensure useEffect has access to the latest setUser function
-
+    }, [setUser]); 
     return (
         <ASidebar user={user} />
     );
 
-    // Now `user` is correctly passed to ASidebar
+    
 };
 
 export default Home;

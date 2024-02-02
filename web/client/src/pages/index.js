@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, navigate } from 'gatsby';
-import NavBar from "./components/Navbar"; // Adjust the import path as necessary
+import NavBar from "./components/Navbar"; 
 import Footer from './components/Footer';
 
 export default function Home() {
@@ -36,7 +36,6 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-8 mt-8 md:grid-cols-2 lg:grid-cols-3">
             <div className="p-8 space-y-3 border-2 border-blue-500 dark:border-blue-300 rounded-xl">
               <span className="inline-block text-blue-500 dark:text-blue-400">
-                {/* SVG or Image Placeholder */}
               </span>
               <h1 className="text-2xl font-semibold text-gray-700 capitalize dark:text-white">Collaborative</h1>
               <p className="text-gray-500 dark:text-gray-300">
@@ -47,7 +46,6 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Duplicate the div above for each card you want to display, adjusting the content as necessary */}
             <div className="p-8 space-y-3 border-2 border-blue-500 dark:border-blue-300 rounded-xl">
               <span className="inline-block text-blue-500 dark:text-blue-400">
                 {/* SVG or Image Placeholder */}
